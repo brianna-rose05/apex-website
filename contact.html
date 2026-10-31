@@ -56,6 +56,73 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
   .lift:hover,a:hover,button:hover{transform:none!important}
 }
+
+/* ---- mobile nav ---- */
+.menu-btn{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:1px solid #ECEEF2;background:#FFFFFF;cursor:pointer;padding:0}
+.menu-btn span{position:relative;display:block;width:18px;height:1.5px;background:#0E1726;transition:background .2s}
+.menu-btn span::before,.menu-btn span::after{content:"";position:absolute;left:0;width:18px;height:1.5px;background:#0E1726;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.menu-btn span::before{top:-6px}.menu-btn span::after{top:6px}
+header.open .menu-btn span{background:transparent}
+header.open .menu-btn span::before{transform:translateY(6px) rotate(45deg)}
+header.open .menu-btn span::after{transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:820px){
+  .menu-btn{display:inline-flex;order:2}
+  header nav{flex-wrap:wrap!important;row-gap:0!important}
+  header nav > a:first-child{order:1;flex:1;min-width:0}
+  header nav > div:nth-child(2),header nav > div:nth-child(3){display:none!important;order:3;width:100%}
+  header.open nav > div:nth-child(2){display:flex!important;flex-direction:column;gap:0!important;padding-top:12px}
+  header.open nav > div:nth-child(2) a{padding:14px 2px;font-size:17px!important;color:#0E1726!important;border-bottom:1px solid #ECEEF2}
+  header.open nav > div:nth-child(2) a::after{display:none}
+  header.open nav > div:nth-child(3){display:flex!important;order:4;gap:8px!important;padding:16px 0 8px}
+  header.open nav > div:nth-child(3) a{flex:1;text-align:center;padding:14px 16px!important}
+  header.open nav > div:nth-child(2),header.open nav > div:nth-child(3){animation:menuIn .35s cubic-bezier(.2,.7,.2,1)}
+  @keyframes menuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+}
+@media (max-width:420px){header nav > a:first-child span:nth-child(n+2){display:none}}
+
+/* ---- phone layout ---- */
+@media (max-width:640px){
+  section[style*="padding: 120px"],section[style*="padding: 110px"],section[style*="padding: 96px 24px"],section[style*="padding: 88px"]{padding-top:72px!important;padding-bottom:72px!important}
+  section[style*="padding: 96px 24px 0"]{padding-bottom:0!important}
+  section[style*="24px 120px"],section[style*="24px 110px"],section[style*="24px 96px"]{padding-bottom:72px!important}
+  section[style*="padding: 40px 24px 120px"]{padding-top:24px!important}
+  section[style*="padding: 20px 24px 110px"]{padding-top:24px!important}
+  footer{padding-top:40px!important;padding-bottom:40px!important}
+  [style*="max-width: 1200px"][style*="gap: 56px"],[style*="max-width: 1200px"][style*="gap: 48px"]{gap:32px!important}
+
+  /* stat bands: two per row */
+  [style*="repeat(auto-fit, minmax(220px, 1fr))"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  [style*="repeat(auto-fit, minmax(220px, 1fr))"] > div{padding:22px 16px!important;border-bottom:1px solid #ECEEF2}
+  [style*="font-size: 40px; font-weight: 700; letter-spacing: -0.05em"]{font-size:30px!important}
+
+  /* dark tour / principles stages: no empty space */
+  [style*="min-height: 500px"],[style*="min-height: 460px"]{min-height:0!important}
+  [style*="min-height: 420px"],[style*="min-height: 380px"]{min-height:0!important;padding:28px 20px!important}
+
+  /* security architecture diagram scrolls instead of shrinking */
+  section [role="img"][style*="max-width: 1120px"]{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  section [role="img"][style*="max-width: 1120px"] > svg{min-width:760px}
+
+  /* platform hero mockup: two space cards per row */
+  [style*="repeat(auto-fit, minmax(170px, 1fr))"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  [style*="repeat(auto-fit, minmax(170px, 1fr))"] > div{height:132px!important;padding:14px!important}
+
+  /* lead card grid */
+  [style*="grid-template-columns: repeat(3, minmax(0, 1fr)); border-top"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+  /* "with Apex" panel: stack phone over inbox */
+  [style*="height: 380px; display: flex; align-items: center; justify-content: space-between"]{flex-direction:column!important;height:auto!important;gap:24px!important}
+  [style*="height: 380px; display: flex; align-items: center; justify-content: space-between"] > [style*="min-width: 30px"]{display:none!important}
+  [style*="height: 380px; display: flex; align-items: center; justify-content: space-between"] > [style*="flex: 0 1 200px"]{width:100%;flex:none!important}
+
+  /* about impact cards */
+  [style*="min-height: 250px"]{min-height:168px!important}
+
+  /* hero floating chips stay inside the card */
+  .float{right:0!important;top:-14px!important}
+  .toast{left:0!important}
+}
 </style>
 </head>
 <body>
@@ -169,6 +236,19 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   var root = document.body.firstElementChild;
   if (root) root.classList.add('page');
 
+  /* mobile menu */
+  var navEl = document.querySelector('header nav');
+  if (navEl) {
+    var mb = document.createElement('button');
+    mb.type = 'button'; mb.className = 'menu-btn'; mb.setAttribute('aria-label', 'Open menu'); mb.setAttribute('aria-expanded', 'false');
+    mb.innerHTML = '<span></span>';
+    navEl.appendChild(mb);
+    mb.addEventListener('click', function () {
+      var hd = document.querySelector('header'); var open = !hd.classList.contains('open');
+      hd.classList.toggle('open', open); mb.setAttribute('aria-expanded', String(open)); mb.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+  }
+
   /* header shadow on scroll */
   var header = document.querySelector('header');
   function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 8); }
@@ -186,7 +266,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
           var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); s.textContent = part; frag.appendChild(s);
         });
       } else if (n.nodeType === 1) {
-        var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w);
+        var last = frag.lastChild;
+        if (last && last.nodeType === 1 && last.classList.contains('w')) { last.appendChild(n.cloneNode(true)); }
+        else { var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w); }
       }
     });
     h1.textContent = ''; h1.appendChild(frag);
