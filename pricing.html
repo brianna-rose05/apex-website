@@ -146,6 +146,24 @@ header.open .menu-btn span::after{transform:translateY(-6px) rotate(-45deg)}
   .page > section:first-of-type [style*="margin-top: 48px"]{margin-top:32px!important}
   .page > section:first-of-type [style*="padding: 20px 0"]{padding-top:28px!important}
 }
+
+/* ---- phone: tour + principles visuals readable ---- */
+@media (max-width:640px){
+  [style*="flex: 2 1 520px"][style*="min-height: 420px"],[style*="flex: 1.4 1 440px"][style*="min-height: 380px"]{padding:24px 4px 28px!important}
+  [style*="flex: 2 1 520px"] svg,[style*="flex: 1.4 1 440px"] svg{max-width:none!important}
+  [style*="flex: 2 1 520px"] svg text{font-size:15px!important}
+  [style*="flex: 2 1 520px"] svg.qsvg text{font-size:13px!important}
+  [style*="flex: 1.4 1 440px"] svg text{font-size:14px!important}
+  /* edge profile list */
+  [style*="flex: 2 1 520px"] [style*="padding: 12px 0; border-bottom"]{gap:14px!important;padding:12px 12px!important}
+  [style*="flex: 2 1 520px"] svg[width="160"]{width:88px!important;height:auto!important}
+  [style*="flex: 2 1 520px"] [style*="padding: 12px 0; border-bottom"] > span:first-of-type{font-size:15px!important}
+  [style*="flex: 2 1 520px"] [style*="padding: 12px 0; border-bottom"] > span:last-child{white-space:nowrap;font-size:10px!important}
+  /* stone grid + labels */
+  [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"]{grid-template-columns:repeat(4,minmax(0,1fr))!important;padding:0 12px}
+  [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"] + div{padding:0 12px;flex-wrap:wrap;gap:6px}
+  [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"] > span:nth-child(n+13){display:none}
+}
 </style>
 </head>
 <body>
