@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apex — Contact</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apex turns a homeowner's measurements into a priced countertop estimate on your website, with your pricing kept on the server.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#111827;text-decoration:none}a:hover{color:#3F5B7A}
+input,select,textarea,button{font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid #3F5B7A;outline-offset:1px}
+</style>
+<style>/* ---- Apex site motion layer (Webflow-style) ---- */
+html{scroll-behavior:smooth;background:#FFFFFF;color-scheme:light}
+body{background:#FFFFFF;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+header{top:env(safe-area-inset-top,0px)!important;transition:box-shadow .35s ease,background-color .35s ease}
+header.scrolled{box-shadow:0 10px 30px -18px rgba(14,23,38,.25);background-color:rgba(255,255,255,.94)!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:#FFFFFF}
+
+/* page enter / leave */
+.page{animation:pageIn .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.leaving .page{opacity:0;transform:translateY(-6px);transition:opacity .28s ease,transform .28s ease}
+
+/* scroll reveal (applied only to content below the first screen) */
+.rv{opacity:0;transform:translateY(28px);filter:blur(4px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s ease;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+
+/* hero headline word rise */
+.w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wordUp .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes wordUp{to{opacity:1;transform:none}}
+
+/* interactions */
+a,button{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease,background-color .25s ease,color .2s ease,border-color .25s ease,opacity .2s ease}
+a[style*="border-radius: 999px"]:hover,button[style*="border-radius: 999px"]:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(14,23,38,.35)}
+a[style*="border-radius: 999px"]:active,button:active{transform:translateY(0) scale(.98)}
+nav a:not([style*="border-radius"]){position:relative}
+nav a:not([style*="border-radius"])::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:#0E1726;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+nav a:not([style*="border-radius"]):hover::after,nav a[aria-current="page"]::after{transform:scaleX(1)}
+footer a{opacity:.85}footer a:hover{opacity:1}
+.lift{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,border-color .3s ease}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -28px rgba(14,23,38,.28)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #3F5B7A;outline-offset:3px}
+
+/* swapped panels fade in */
+.swap-in{animation:swapIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes swapIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .page,.w,.swap-in{animation:none!important;opacity:1!important;transform:none!important}
+  .rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+  .lift:hover,a:hover,button:hover{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #111827; background: #FFFFFF; overflow-x: hidden">
+
+
+<header style="position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); border-bottom: 1px solid #ECEEF2">
+<nav aria-label="Main" style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<a href="index.html" style="display: flex; align-items: center; gap: 14px">
+<span style="font-weight: 700; font-size: 21px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<span style="width: 1px; height: 18px; background: #D9DDE3"></span>
+<span style="font-size: 13px; font-weight: 500; color: #3F4858">Instant Countertop Quotes</span>
+</a>
+<div style="display: flex; gap: 28px; font-size: 14px; font-weight: 500; flex-wrap: wrap">
+<a href="platform.html" style="color: #6B7280">Platform</a>
+<a href="security.html" style="color: #6B7280">Security</a>
+<a href="pricing.html" style="color: #6B7280">Pricing</a>
+<a href="about.html" style="color: #6B7280">About</a>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="https://ctop-quote.vercel.app/" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: rgba(255,255,255,0.85); color: #0E1726">Live demo</a>
+<a href="contact.html" aria-current="page" style="font-size: 14px; font-weight: 600; padding: 11px 18px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Book a demo</a>
+</div>
+</nav>
+</header>
+
+
+<section data-sec="0" style="position: relative; padding: 88px 24px 110px; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none"></div>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start">
+
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">CONTACT</div>
+<h1 style="margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726">Let&#39;s talk about your shop<span style="color: #3F5B7A">.</span></h1>
+<p style="margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.</p>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 8px">
+
+<div style="display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726">01</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700; letter-spacing: -0.02em">Walkthrough</span><span style="font-size: 14px; color: #6B7280">See the full quote flow, start to finish.</span></span>
+</div>
+
+<div style="display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726">02</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700; letter-spacing: -0.02em">Your catalog</span><span style="font-size: 14px; color: #6B7280">We map your stones and pricing rules.</span></span>
+</div>
+
+<div style="display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726">03</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700; letter-spacing: -0.02em">Go live</span><span style="font-size: 14px; color: #6B7280">Hosted page or embedded on your site.</span></span>
+</div>
+
+</div>
+<div style="font-size: 14px; color: #6B7280">Prefer email? <span style="color: #0E1726; font-weight: 600">[hello@yourdomain.com]</span></div>
+</div>
+
+<div style="flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)">
+
+
+<form style="display: flex; flex-direction: column; gap: 18px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Tell us about your shop.</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d-name" style="font-size: 13px; font-weight: 600; color: #3F4858">Full name</label><input id="d-name" type="text" autocomplete="name" style="height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d-email" style="font-size: 13px; font-weight: 600; color: #3F4858">Work email</label><input id="d-email" type="email" autocomplete="email" style="height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726"></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d-shop" style="font-size: 13px; font-weight: 600; color: #3F4858">Shop name</label><input id="d-shop" type="text" autocomplete="organization" style="height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d-loc" style="font-size: 13px; font-weight: 600; color: #3F4858">Locations</label><select id="d-loc" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726"><option>1</option><option>2–5</option><option>6+</option></select></div>
+</div>
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px">
+<legend style="font-size: 13px; font-weight: 600; color: #3F4858; margin-bottom: 8px">How do you quote today?</legend>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+
+<button type="button" data-set="{&quot;method&quot;:&quot;Spreadsheets&quot;}" aria-pressed="true" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #0E1726; background: #0E1726; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer">Spreadsheets</button>
+
+<button type="button" data-set="{&quot;method&quot;:&quot;Pen and paper&quot;}" aria-pressed="false" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer">Pen and paper</button>
+
+<button type="button" data-set="{&quot;method&quot;:&quot;Other software&quot;}" aria-pressed="false" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer">Other software</button>
+
+<button type="button" data-set="{&quot;method&quot;:&quot;Site visits only&quot;}" aria-pressed="false" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer">Site visits only</button>
+
+</div>
+</fieldset>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d-msg" style="font-size: 13px; font-weight: 600; color: #3F4858">Anything else? <span style="font-weight: 500; color: #6B7280">(optional)</span></label><textarea id="d-msg" rows="3" style="padding: 12px 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726; resize: vertical"></textarea></div>
+<button type="button" data-set="{&quot;sent&quot;:true}" style="min-height: 52px; border-radius: 999px; border: none; background: #0E1726; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer">Request a demo</button>
+</form>
+
+</div>
+
+</div>
+</section>
+
+
+<footer style="border-top: 1px solid #ECEEF2; padding: 48px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px">
+<span style="font-weight: 700; font-size: 20px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<p style="margin: 0; font-size: 14px; color: #6B7280; line-height: 1.6">Instant, accurate quoting for countertop fabricators.</p>
+</div>
+<div style="display: flex; gap: 64px; flex-wrap: wrap; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">PRODUCT</span><a href="platform.html">Platform</a><a href="pricing.html">Pricing</a><a href="security.html">Security</a><a href="https://ctop-quote.vercel.app/">Live demo</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">COMPANY</span><a href="about.html">About</a><a href="contact.html">Book a demo</a><a href="contact.html">Contact</a></div>
+</div>
+</div>
+<div style="max-width: 1200px; margin: 40px auto 0; font-size: 13px; color: #6B7280">© 2026 Apex. All rights reserved.</div>
+</footer>
+
+</div>
+<script>window.__DYN={"keys":["sent","method"],"state":{"sent":false,"method":"Spreadsheets"},"sections":{"0":{"[false,\"Spreadsheets\"]":0,"[false,\"Pen and paper\"]":1,"[false,\"Other software\"]":2,"[false,\"Site visits only\"]":3,"[true,\"Spreadsheets\"]":4,"[true,\"Pen and paper\"]":4,"[true,\"Other software\"]":4,"[true,\"Site visits only\"]":4}},"html":["\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none\">\u003c/div>\n\u003cdiv style=\"position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start\">\n\n\u003cdiv style=\"flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">CONTACT\u003c/div>\n\u003ch1 style=\"margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726\">Let&#39;s talk about your shop\u003cspan style=\"color: #3F5B7A\">.\u003c/span>\u003c/h1>\n\u003cp style=\"margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px\">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.\u003c/p>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 12px; padding-top: 8px\">\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">01\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Walkthrough\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">See the full quote flow, start to finish.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">02\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Your catalog\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">We map your stones and pricing rules.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">03\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Go live\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">Hosted page or embedded on your site.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\u003cdiv style=\"font-size: 14px; color: #6B7280\">Prefer email? \u003cspan style=\"color: #0E1726; font-weight: 600\">[hello@yourdomain.com]\u003c/span>\u003c/div>\n\u003c/div>\n\n\u003cdiv style=\"flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)\">\n\n\n\u003cform style=\"display: flex; flex-direction: column; gap: 18px\">\n\u003cdiv style=\"font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726\">Tell us about your shop.\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-name\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Full name\u003c/label>\u003cinput id=\"d-name\" type=\"text\" autocomplete=\"name\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-email\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Work email\u003c/label>\u003cinput id=\"d-email\" type=\"email\" autocomplete=\"email\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-shop\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Shop name\u003c/label>\u003cinput id=\"d-shop\" type=\"text\" autocomplete=\"organization\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-loc\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Locations\u003c/label>\u003cselect id=\"d-loc\" style=\"height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003coption>1\u003c/option>\u003coption>2–5\u003c/option>\u003coption>6+\u003c/option>\u003c/select>\u003c/div>\n\u003c/div>\n\u003cfieldset style=\"margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px\">\n\u003clegend style=\"font-size: 13px; font-weight: 600; color: #3F4858; margin-bottom: 8px\">How do you quote today?\u003c/legend>\n\u003cdiv style=\"display: flex; gap: 8px; flex-wrap: wrap\">\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Spreadsheets&quot;}\" aria-pressed=\"true\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #0E1726; background: #0E1726; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer\">Spreadsheets\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Pen and paper&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Pen and paper\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Other software&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Other software\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Site visits only&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Site visits only\u003c/button>\n\n\u003c/div>\n\u003c/fieldset>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-msg\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Anything else? \u003cspan style=\"font-weight: 500; color: #6B7280\">(optional)\u003c/span>\u003c/label>\u003ctextarea id=\"d-msg\" rows=\"3\" style=\"padding: 12px 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726; resize: vertical\">\u003c/textarea>\u003c/div>\n\u003cbutton type=\"button\" data-set=\"{&quot;sent&quot;:true}\" style=\"min-height: 52px; border-radius: 999px; border: none; background: #0E1726; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer\">Request a demo\u003c/button>\n\u003c/form>\n\n\u003c/div>\n\n\u003c/div>\n","\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none\">\u003c/div>\n\u003cdiv style=\"position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start\">\n\n\u003cdiv style=\"flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">CONTACT\u003c/div>\n\u003ch1 style=\"margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726\">Let&#39;s talk about your shop\u003cspan style=\"color: #3F5B7A\">.\u003c/span>\u003c/h1>\n\u003cp style=\"margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px\">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.\u003c/p>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 12px; padding-top: 8px\">\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">01\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Walkthrough\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">See the full quote flow, start to finish.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">02\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Your catalog\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">We map your stones and pricing rules.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">03\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Go live\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">Hosted page or embedded on your site.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\u003cdiv style=\"font-size: 14px; color: #6B7280\">Prefer email? \u003cspan style=\"color: #0E1726; font-weight: 600\">[hello@yourdomain.com]\u003c/span>\u003c/div>\n\u003c/div>\n\n\u003cdiv style=\"flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)\">\n\n\n\u003cform style=\"display: flex; flex-direction: column; gap: 18px\">\n\u003cdiv style=\"font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726\">Tell us about your shop.\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-name\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Full name\u003c/label>\u003cinput id=\"d-name\" type=\"text\" autocomplete=\"name\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-email\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Work email\u003c/label>\u003cinput id=\"d-email\" type=\"email\" autocomplete=\"email\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-shop\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Shop name\u003c/label>\u003cinput id=\"d-shop\" type=\"text\" autocomplete=\"organization\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-loc\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Locations\u003c/label>\u003cselect id=\"d-loc\" style=\"height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003coption>1\u003c/option>\u003coption>2–5\u003c/option>\u003coption>6+\u003c/option>\u003c/select>\u003c/div>\n\u003c/div>\n\u003cfieldset style=\"margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px\">\n\u003clegend style=\"font-size: 13px; font-weight: 600; color: #3F4858; margin-bottom: 8px\">How do you quote today?\u003c/legend>\n\u003cdiv style=\"display: flex; gap: 8px; flex-wrap: wrap\">\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Spreadsheets&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Spreadsheets\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Pen and paper&quot;}\" aria-pressed=\"true\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #0E1726; background: #0E1726; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer\">Pen and paper\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Other software&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Other software\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Site visits only&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Site visits only\u003c/button>\n\n\u003c/div>\n\u003c/fieldset>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-msg\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Anything else? \u003cspan style=\"font-weight: 500; color: #6B7280\">(optional)\u003c/span>\u003c/label>\u003ctextarea id=\"d-msg\" rows=\"3\" style=\"padding: 12px 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726; resize: vertical\">\u003c/textarea>\u003c/div>\n\u003cbutton type=\"button\" data-set=\"{&quot;sent&quot;:true}\" style=\"min-height: 52px; border-radius: 999px; border: none; background: #0E1726; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer\">Request a demo\u003c/button>\n\u003c/form>\n\n\u003c/div>\n\n\u003c/div>\n","\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none\">\u003c/div>\n\u003cdiv style=\"position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start\">\n\n\u003cdiv style=\"flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">CONTACT\u003c/div>\n\u003ch1 style=\"margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726\">Let&#39;s talk about your shop\u003cspan style=\"color: #3F5B7A\">.\u003c/span>\u003c/h1>\n\u003cp style=\"margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px\">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.\u003c/p>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 12px; padding-top: 8px\">\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">01\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Walkthrough\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">See the full quote flow, start to finish.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">02\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Your catalog\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">We map your stones and pricing rules.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">03\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Go live\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">Hosted page or embedded on your site.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\u003cdiv style=\"font-size: 14px; color: #6B7280\">Prefer email? \u003cspan style=\"color: #0E1726; font-weight: 600\">[hello@yourdomain.com]\u003c/span>\u003c/div>\n\u003c/div>\n\n\u003cdiv style=\"flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)\">\n\n\n\u003cform style=\"display: flex; flex-direction: column; gap: 18px\">\n\u003cdiv style=\"font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726\">Tell us about your shop.\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-name\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Full name\u003c/label>\u003cinput id=\"d-name\" type=\"text\" autocomplete=\"name\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-email\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Work email\u003c/label>\u003cinput id=\"d-email\" type=\"email\" autocomplete=\"email\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-shop\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Shop name\u003c/label>\u003cinput id=\"d-shop\" type=\"text\" autocomplete=\"organization\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-loc\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Locations\u003c/label>\u003cselect id=\"d-loc\" style=\"height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003coption>1\u003c/option>\u003coption>2–5\u003c/option>\u003coption>6+\u003c/option>\u003c/select>\u003c/div>\n\u003c/div>\n\u003cfieldset style=\"margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px\">\n\u003clegend style=\"font-size: 13px; font-weight: 600; color: #3F4858; margin-bottom: 8px\">How do you quote today?\u003c/legend>\n\u003cdiv style=\"display: flex; gap: 8px; flex-wrap: wrap\">\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Spreadsheets&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Spreadsheets\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Pen and paper&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Pen and paper\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Other software&quot;}\" aria-pressed=\"true\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #0E1726; background: #0E1726; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer\">Other software\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Site visits only&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Site visits only\u003c/button>\n\n\u003c/div>\n\u003c/fieldset>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-msg\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Anything else? \u003cspan style=\"font-weight: 500; color: #6B7280\">(optional)\u003c/span>\u003c/label>\u003ctextarea id=\"d-msg\" rows=\"3\" style=\"padding: 12px 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726; resize: vertical\">\u003c/textarea>\u003c/div>\n\u003cbutton type=\"button\" data-set=\"{&quot;sent&quot;:true}\" style=\"min-height: 52px; border-radius: 999px; border: none; background: #0E1726; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer\">Request a demo\u003c/button>\n\u003c/form>\n\n\u003c/div>\n\n\u003c/div>\n","\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none\">\u003c/div>\n\u003cdiv style=\"position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start\">\n\n\u003cdiv style=\"flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">CONTACT\u003c/div>\n\u003ch1 style=\"margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726\">Let&#39;s talk about your shop\u003cspan style=\"color: #3F5B7A\">.\u003c/span>\u003c/h1>\n\u003cp style=\"margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px\">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.\u003c/p>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 12px; padding-top: 8px\">\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">01\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Walkthrough\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">See the full quote flow, start to finish.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">02\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Your catalog\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">We map your stones and pricing rules.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">03\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Go live\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">Hosted page or embedded on your site.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\u003cdiv style=\"font-size: 14px; color: #6B7280\">Prefer email? \u003cspan style=\"color: #0E1726; font-weight: 600\">[hello@yourdomain.com]\u003c/span>\u003c/div>\n\u003c/div>\n\n\u003cdiv style=\"flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)\">\n\n\n\u003cform style=\"display: flex; flex-direction: column; gap: 18px\">\n\u003cdiv style=\"font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726\">Tell us about your shop.\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-name\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Full name\u003c/label>\u003cinput id=\"d-name\" type=\"text\" autocomplete=\"name\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-email\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Work email\u003c/label>\u003cinput id=\"d-email\" type=\"email\" autocomplete=\"email\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003c/div>\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px\">\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-shop\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Shop name\u003c/label>\u003cinput id=\"d-shop\" type=\"text\" autocomplete=\"organization\" style=\"height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003c/div>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-loc\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Locations\u003c/label>\u003cselect id=\"d-loc\" style=\"height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726\">\u003coption>1\u003c/option>\u003coption>2–5\u003c/option>\u003coption>6+\u003c/option>\u003c/select>\u003c/div>\n\u003c/div>\n\u003cfieldset style=\"margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px\">\n\u003clegend style=\"font-size: 13px; font-weight: 600; color: #3F4858; margin-bottom: 8px\">How do you quote today?\u003c/legend>\n\u003cdiv style=\"display: flex; gap: 8px; flex-wrap: wrap\">\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Spreadsheets&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Spreadsheets\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Pen and paper&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Pen and paper\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Other software&quot;}\" aria-pressed=\"false\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #3F4858; font-size: 14px; font-weight: 600; cursor: pointer\">Other software\u003c/button>\n\n\u003cbutton type=\"button\" data-set=\"{&quot;method&quot;:&quot;Site visits only&quot;}\" aria-pressed=\"true\" style=\"min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #0E1726; background: #0E1726; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer\">Site visits only\u003c/button>\n\n\u003c/div>\n\u003c/fieldset>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 6px\">\u003clabel for=\"d-msg\" style=\"font-size: 13px; font-weight: 600; color: #3F4858\">Anything else? \u003cspan style=\"font-weight: 500; color: #6B7280\">(optional)\u003c/span>\u003c/label>\u003ctextarea id=\"d-msg\" rows=\"3\" style=\"padding: 12px 14px; border-radius: 12px; border: 1px solid #D9DDE3; background: #FFFFFF; font-size: 15px; color: #0E1726; resize: vertical\">\u003c/textarea>\u003c/div>\n\u003cbutton type=\"button\" data-set=\"{&quot;sent&quot;:true}\" style=\"min-height: 52px; border-radius: 999px; border: none; background: #0E1726; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer\">Request a demo\u003c/button>\n\u003c/form>\n\n\u003c/div>\n\n\u003c/div>\n","\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none\">\u003c/div>\n\u003cdiv style=\"position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start\">\n\n\u003cdiv style=\"flex: 1 1 420px; display: flex; flex-direction: column; gap: 24px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">CONTACT\u003c/div>\n\u003ch1 style=\"margin: 0; font-size: clamp(44px, 6.2vw, 72px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726\">Let&#39;s talk about your shop\u003cspan style=\"color: #3F5B7A\">.\u003c/span>\u003c/h1>\n\u003cp style=\"margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 480px\">Book a demo or ask us anything. A short call, a live walkthrough, and a plan for getting your shop quoting online.\u003c/p>\n\u003cdiv style=\"display: flex; flex-direction: column; gap: 12px; padding-top: 8px\">\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">01\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Walkthrough\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">See the full quote flow, start to finish.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">02\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Your catalog\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">We map your stones and pricing rules.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF\">\n\u003cspan style=\"flex: none; width: 40px; height: 40px; border-radius: 12px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0E1726\">03\u003c/span>\n\u003cspan style=\"display: flex; flex-direction: column; gap: 2px\">\u003cspan style=\"font-size: 15px; font-weight: 700; letter-spacing: -0.02em\">Go live\u003c/span>\u003cspan style=\"font-size: 14px; color: #6B7280\">Hosted page or embedded on your site.\u003c/span>\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\u003cdiv style=\"font-size: 14px; color: #6B7280\">Prefer email? \u003cspan style=\"color: #0E1726; font-weight: 600\">[hello@yourdomain.com]\u003c/span>\u003c/div>\n\u003c/div>\n\n\u003cdiv style=\"flex: 1 1 440px; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: clamp(24px, 3.5vw, 40px); box-shadow: 0 30px 80px -36px rgba(14,23,38,0.28)\">\n\n\u003cdiv style=\"min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px\">\n\u003cspan style=\"width: 56px; height: 56px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center\">\u003csvg width=\"26\" height=\"26\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\" aria-hidden=\"true\">\u003cpath d=\"M3 8.5 L6.5 12 L13 4.5\"/>\u003c/svg>\u003c/span>\n\u003cdiv style=\"font-size: 28px; font-weight: 700; letter-spacing: -0.04em; color: #0E1726\">Request received.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; color: #6B7280; max-width: 320px; line-height: 1.6\">We'll email you to find a time.\u003c/p>\n\u003cbutton type=\"button\" data-set=\"{&quot;sent&quot;:false}\" style=\"min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; font-size: 14px; font-weight: 600; color: #0E1726; cursor: pointer\">Send another\u003c/button>\n\u003c/div>\n\n\n\u003c/div>\n\n\u003c/div>\n"],"timer":null};</script><script>(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.body.firstElementChild;
+  if (root) root.classList.add('page');
+
+  /* header shadow on scroll */
+  var header = document.querySelector('header');
+  function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* hero headline: words rise in */
+  var h1 = document.querySelector('h1');
+  if (h1 && !reduce) {
+    var i = 0, frag = document.createDocumentFragment();
+    Array.prototype.slice.call(h1.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); s.textContent = part; frag.appendChild(s);
+        });
+      } else if (n.nodeType === 1) {
+        var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w);
+      }
+    });
+    h1.textContent = ''; h1.appendChild(frag);
+    h1.setAttribute('aria-label', h1.textContent);
+  }
+
+  /* hover lift on cards */
+  function markLift(scope) {
+    scope.querySelectorAll('.bento > *, [style*="display: grid"] > [style*="border-radius: 2"]').forEach(function (el) {
+      if (/border: 1px/.test(el.getAttribute('style') || '')) el.classList.add('lift');
+    });
+  }
+  markLift(document);
+
+  /* scroll reveal for content below the first screen */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cands = [];
+    document.querySelectorAll('main, section').forEach(function (sec) {
+      var grids = sec.querySelectorAll('.bento, [style*="display: grid"]');
+      grids.forEach(function (g) { Array.prototype.forEach.call(g.children, function (c, idx) { cands.push([c, Math.min(idx, 6) * 0.08]); }); });
+      sec.querySelectorAll('[style*="max-width: 1200px"]').forEach(function (box) {
+        Array.prototype.forEach.call(box.children, function (c, idx) {
+          if (c.querySelector('.bento, [style*="display: grid"]') || c.matches('.bento, [style*="display: grid"]')) return;
+          cands.push([c, Math.min(idx, 4) * 0.08]);
+        });
+      });
+    });
+    var fold = window.innerHeight * 0.92;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    var seen = new Set();
+    cands.forEach(function (c) {
+      var el = c[0];
+      if (seen.has(el)) return; seen.add(el);
+      if (el.closest('header, footer')) return;
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add('rv'); el.style.setProperty('--d', c[1] + 's'); io.observe(el);
+    });
+  }
+
+  /* page transitions */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
+    var href = a.getAttribute('href');
+    if (!/^[\w-]+\.html(#.*)?$/.test(href)) return;
+    e.preventDefault();
+    if (reduce) { location.href = href; return; }
+    document.body.classList.add('leaving');
+    setTimeout(function () { location.href = href; }, 280);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) document.body.classList.remove('leaving'); });
+
+  /* interactive state: tabs, toggles, FAQ, forms */
+  var D = window.__DYN;
+  if (!D) return;
+  var state = D.state;
+  var tpl = document.createElement('template');
+
+  function keyOf() { return JSON.stringify(D.keys.map(function (k) { return state[k]; })); }
+
+  function morph(oldEl, newEl) {
+    // attributes
+    Array.prototype.slice.call(oldEl.attributes).forEach(function (a) { if (!newEl.hasAttribute(a.name) && a.name !== 'class') oldEl.removeAttribute(a.name); });
+    Array.prototype.slice.call(newEl.attributes).forEach(function (a) {
+      if (a.name === 'class') {
+        var keep = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); });
+        oldEl.setAttribute('class', a.value); keep.forEach(function (c) { oldEl.classList.add(c); });
+      } else if (oldEl.getAttribute(a.name) !== a.value) oldEl.setAttribute(a.name, a.value);
+    });
+    if (!newEl.hasAttribute('class')) { var keep2 = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); }); oldEl.removeAttribute('class'); keep2.forEach(function (c) { oldEl.classList.add(c); }); }
+    var oc = Array.prototype.slice.call(oldEl.childNodes), nc = Array.prototype.slice.call(newEl.childNodes);
+    var len = Math.max(oc.length, nc.length);
+    for (var i = 0; i < len; i++) {
+      var o = oc[i], n = nc[i];
+      if (!n) { oldEl.removeChild(o); continue; }
+      if (!o) { var add = n.cloneNode(true); oldEl.appendChild(add); if (add.nodeType === 1) add.classList.add('swap-in'); continue; }
+      if (o.nodeType !== n.nodeType || o.nodeName !== n.nodeName) {
+        var rep = n.cloneNode(true); oldEl.replaceChild(rep, o); if (rep.nodeType === 1) rep.classList.add('swap-in'); continue;
+      }
+      if (o.nodeType === 3) { if (o.textContent !== n.textContent) o.textContent = n.textContent; continue; }
+      if (o.nodeType === 1) morph(o, n);
+    }
+  }
+
+  function update() {
+    var k = keyOf();
+    Object.keys(D.sections).forEach(function (idx) {
+      var map = D.sections[idx]; var hi = map[k]; if (hi == null) return;
+      var sec = document.querySelector('[data-sec="' + idx + '"]'); if (!sec || sec.__k === k) return;
+      tpl.innerHTML = '<section>' + D.html[hi] + '</section>';
+      var fresh = tpl.content.firstElementChild;
+      Array.prototype.slice.call(sec.childNodes).forEach(function () {});
+      var shell = sec.cloneNode(false); while (fresh.firstChild) shell.appendChild(fresh.firstChild);
+      morph(sec, shell); sec.__k = k;
+      markLift(sec);
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-set]');
+    if (!b) return;
+    var patch = JSON.parse(b.getAttribute('data-set'));
+    var form = b.closest('form');
+    if (form && patch.sent === true) {
+      var name = form.querySelector('#d-name'), mail = form.querySelector('#d-email');
+      if (name) name.required = true; if (mail) mail.required = true;
+      if (!form.reportValidity()) return;
+    }
+    Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
+    update();
+  });
+  document.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  if (D.timer && !reduce) {
+    setInterval(function () {
+      if (state.auto === false || document.hidden) return;
+      state[D.timer.key] = (state[D.timer.key] + 1) % D.timer.n; update();
+    }, D.timer.ms);
+  }
+})();
+</script>
+</body>
+</html>

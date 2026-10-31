@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apex — Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apex turns a homeowner's measurements into a priced countertop estimate on your website, with your pricing kept on the server.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#111827;text-decoration:none}a:hover{color:#3F5B7A}
+button{font-family:inherit}
+.cursor{animation:cursor 7s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes cursor{0%{transform:translate(220px,140px)}30%{transform:translate(0,0)}36%{transform:translate(0,0) scale(.85)}40%,75%{transform:translate(0,0)}100%{transform:translate(220px,140px)}}
+.pick{animation:pick 7s ease infinite}
+@keyframes pick{0%,34%{border-color:#ECEEF2;box-shadow:none;background:#FFFFFF}38%,92%{border-color:#0E1726;box-shadow:0 0 0 3px rgba(14,23,38,.08);background:#FFFFFF}100%{border-color:#ECEEF2;box-shadow:none}}
+.pickdot{animation:pickdot 7s ease infinite}
+@keyframes pickdot{0%,34%{background:#FFFFFF;border-color:#D9DDE3}38%,92%{background:#0E1726;border-color:#0E1726}100%{background:#FFFFFF;border-color:#D9DDE3}}
+.tabbar{transform-origin:left;animation:tabbar 6s linear}
+@keyframes tabbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.fadein{animation:fadein .45s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.leadin{animation:leadin 7s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes leadin{0%{opacity:0;transform:translateY(14px)}7%,92%{opacity:1;transform:none}100%{opacity:0}}
+.livedot{animation:livedot 1.6s ease-in-out infinite}
+@keyframes livedot{50%{opacity:.3}}
+.flow{animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.glow{animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{opacity:.4}}
+.glowbox{animation:glowbox 2.4s ease-in-out infinite}
+@keyframes glowbox{50%{opacity:.85}}
+.drawline{stroke-dasharray:1;stroke-dashoffset:1;animation:drawline 1.4s cubic-bezier(.65,0,.35,1) forwards}
+@keyframes drawline{to{stroke-dashoffset:0}}
+@property --c{syntax:'<integer>';inherits:false;initial-value:0}
+.cnt{counter-reset:c var(--c);animation:cnt 1.4s cubic-bezier(.2,.7,.2,1) forwards}
+.cnt::after{content:counter(c)}
+@keyframes cnt{from{--c:0}to{--c:35}}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px}
+.s2{grid-column:span 2}.s3{grid-column:span 3}.s4{grid-column:span 4}.s6{grid-column:span 6}
+@media (max-width:900px){.bento{grid-template-columns:repeat(2,minmax(0,1fr))}.s2,.s3,.s4,.s6{grid-column:span 2}}
+.drawloop{stroke-dasharray:1;stroke-dashoffset:1;animation:drawloop 6s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes drawloop{0%{stroke-dashoffset:1}35%,90%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.seg{transform-origin:left;animation:seg 5s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes seg{0%{transform:scaleX(0)}20%,92%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:.3}}
+.caret{animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}.drawline{stroke-dashoffset:0}.cnt{--c:35}.drawloop{stroke-dashoffset:0}}
+</style>
+<style>/* ---- Apex site motion layer (Webflow-style) ---- */
+html{scroll-behavior:smooth;background:#FFFFFF;color-scheme:light}
+body{background:#FFFFFF;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+header{top:env(safe-area-inset-top,0px)!important;transition:box-shadow .35s ease,background-color .35s ease}
+header.scrolled{box-shadow:0 10px 30px -18px rgba(14,23,38,.25);background-color:rgba(255,255,255,.94)!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:#FFFFFF}
+
+/* page enter / leave */
+.page{animation:pageIn .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.leaving .page{opacity:0;transform:translateY(-6px);transition:opacity .28s ease,transform .28s ease}
+
+/* scroll reveal (applied only to content below the first screen) */
+.rv{opacity:0;transform:translateY(28px);filter:blur(4px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s ease;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+
+/* hero headline word rise */
+.w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wordUp .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes wordUp{to{opacity:1;transform:none}}
+
+/* interactions */
+a,button{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease,background-color .25s ease,color .2s ease,border-color .25s ease,opacity .2s ease}
+a[style*="border-radius: 999px"]:hover,button[style*="border-radius: 999px"]:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(14,23,38,.35)}
+a[style*="border-radius: 999px"]:active,button:active{transform:translateY(0) scale(.98)}
+nav a:not([style*="border-radius"]){position:relative}
+nav a:not([style*="border-radius"])::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:#0E1726;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+nav a:not([style*="border-radius"]):hover::after,nav a[aria-current="page"]::after{transform:scaleX(1)}
+footer a{opacity:.85}footer a:hover{opacity:1}
+.lift{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,border-color .3s ease}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -28px rgba(14,23,38,.28)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #3F5B7A;outline-offset:3px}
+
+/* swapped panels fade in */
+.swap-in{animation:swapIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes swapIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .page,.w,.swap-in{animation:none!important;opacity:1!important;transform:none!important}
+  .rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+  .lift:hover,a:hover,button:hover{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #111827; background: #FFFFFF; overflow-x: hidden">
+
+
+<header style="position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); border-bottom: 1px solid #ECEEF2">
+<nav aria-label="Main" style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<a href="index.html" style="display: flex; align-items: center; gap: 14px">
+<span style="font-weight: 700; font-size: 21px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<span style="width: 1px; height: 18px; background: #D9DDE3"></span>
+<span style="font-size: 13px; font-weight: 500; color: #3F4858">Instant Countertop Quotes</span>
+</a>
+<div style="display: flex; gap: 28px; font-size: 14px; font-weight: 500; flex-wrap: wrap">
+<a href="platform.html" aria-current="page" style="color: #0E1726; font-weight: 600">Platform</a>
+<a href="security.html" style="color: #6B7280">Security</a>
+<a href="pricing.html" style="color: #6B7280">Pricing</a>
+<a href="about.html" style="color: #6B7280">About</a>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="https://ctop-quote.vercel.app/" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: rgba(255,255,255,0.85); color: #0E1726">Live demo</a>
+<a href="contact.html" style="font-size: 14px; font-weight: 600; padding: 11px 18px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Book a demo</a>
+</div>
+</nav>
+</header>
+
+
+<section data-sec="0" style="position: relative; padding: 96px 24px 0; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -300px; left: 50%; width: 1200px; height: 800px; margin-left: -600px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none"></div>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px">
+<div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF; font-size: 13px; font-weight: 500; color: #3F4858">Platform</div>
+<h1 style="margin: 0; font-size: clamp(46px, 7vw, 88px); line-height: 0.98; letter-spacing: -0.055em; font-weight: 700; color: #0E1726; max-width: 980px">The quote, built by your customer<span style="color: #3F5B7A">.</span></h1>
+<p style="margin: 0; font-size: clamp(17px, 1.7vw, 20px); line-height: 1.6; color: #6B7280; max-width: 580px">A guided flow on your website that measures, prices and emails the quote, while your team does the selling.</p>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center">
+<a href="contact.html" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Book a demo</a>
+<a href="https://ctop-quote.vercel.app/" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #0E1726">Try the live demo</a>
+</div>
+
+
+<div role="img" aria-label="The Apex quote flow on a fabricator's website: the customer picks Kitchen from Kitchen, Vanity, Bar and Other" style="position: relative; margin-top: 48px; width: 100%; max-width: 1120px; border: 1px solid #E3E6EA; border-bottom: none; border-radius: 20px 20px 0 0; background: #FFFFFF; box-shadow: 0 -10px 80px -30px rgba(14,23,38,0.25); overflow: hidden; text-align: left">
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid #ECEEF2; background: #FAFBFC">
+<span style="display: flex; gap: 6px"><span style="width: 11px; height: 11px; border-radius: 50%; background: #E3E6EA"></span><span style="width: 11px; height: 11px; border-radius: 50%; background: #E3E6EA"></span><span style="width: 11px; height: 11px; border-radius: 50%; background: #E3E6EA"></span></span>
+<span style="flex: 1; max-width: 360px; margin: 0 auto; padding: 6px 12px; border-radius: 8px; background: #F1F3F5; font-size: 12px; color: #6B7280; text-align: center">yourshop.com/quote</span>
+<span style="width: 45px"></span>
+</div>
+<div aria-hidden="true" style="height: 3px; background: #F1F3F5"><div style="width: 12.5%; height: 3px; background: #3F5B7A"></div></div>
+<div aria-hidden="true" style="position: relative; padding: 28px clamp(20px, 4vw, 48px) 40px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<span style="display: flex; align-items: center; gap: 14px"><span style="font-weight: 700; font-size: 18px; letter-spacing: -0.035em; color: #0E1726">Your Shop</span><span style="width: 1px; height: 16px; background: #D9DDE3"></span><span style="font-size: 13px; font-weight: 500; color: #3F4858">Instant Countertop Quote</span></span>
+<span style="font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 999px; border: 1px solid #ECEEF2">Need help?</span>
+</div>
+<div style="margin-top: 44px; font-size: clamp(32px, 4.4vw, 52px); font-weight: 700; letter-spacing: -0.05em; color: #0E1726">Select your space.</div>
+<div style="margin-top: 12px; font-size: 15px; line-height: 1.6; color: #6B7280; max-width: 440px">Choose the area you're working on. You can add more spaces later.</div>
+<div style="margin-top: 36px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px">
+
+<div class="pick" style="position: relative; height: 190px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<span style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid #ECEEF2; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10h12v9a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z M4 10h16 M9 10V6a3 3 0 0 1 6 0v4"></path></svg></span>
+<span class="pickdot" style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #D9DDE3; background: #FFFFFF; box-sizing: border-box"></span>
+</div>
+<div><div style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">Kitchen</div><div style="font-size: 13px; color: #6B7280; margin-top: 4px">Kitchen countertops</div></div>
+</div>
+
+<div class="" style="position: relative; height: 190px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<span style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid #ECEEF2; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z M6 12V6a2 2 0 0 1 4 0 M7 19l-1 2 M17 19l1 2"></path></svg></span>
+<span class="" style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #D9DDE3; background: #FFFFFF; box-sizing: border-box"></span>
+</div>
+<div><div style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">Vanity</div><div style="font-size: 13px; color: #6B7280; margin-top: 4px">Bathroom vanity top</div></div>
+</div>
+
+<div class="" style="position: relative; height: 190px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<span style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid #ECEEF2; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 6a3 3 0 0 1-6 0z M12 12v8 M8 20h8"></path></svg></span>
+<span class="" style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #D9DDE3; background: #FFFFFF; box-sizing: border-box"></span>
+</div>
+<div><div style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">Bar</div><div style="font-size: 13px; color: #6B7280; margin-top: 4px">Bar or entertainment area</div></div>
+</div>
+
+<div class="" style="position: relative; height: 190px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<span style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid #ECEEF2; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7v7H4z M14 14h6v6h-6z M17.5 4a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"></path></svg></span>
+<span class="" style="width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #D9DDE3; background: #FFFFFF; box-sizing: border-box"></span>
+</div>
+<div><div style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">Other</div><div style="font-size: 13px; color: #6B7280; margin-top: 4px">Custom space</div></div>
+</div>
+
+</div>
+<svg class="cursor" width="22" height="22" viewBox="0 0 18 18" style="position: absolute; left: clamp(140px, 16%, 200px); top: 300px"><path d="M2 2 L15 8 L9 9.5 L7 16 Z" fill="#0E1726" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="1" style="border-top: 1px solid #ECEEF2; border-bottom: 1px solid #ECEEF2; background: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">8</span>
+<span style="font-size: 14px; color: #6B7280">Guided steps per quote</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">700+</span>
+<span style="font-size: 14px; color: #6B7280">Stones in the catalog</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">Any</span>
+<span style="font-size: 14px; color: #6B7280">Layout shape, measured exactly</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">0</span>
+<span style="font-size: 14px; color: #6B7280">Pricing rules sent to the browser</span>
+</div>
+
+</div>
+</section>
+
+
+<section data-sec="2" style="padding: 120px 24px; background: #F9FAFB; border-bottom: 1px solid #ECEEF2">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div style="max-width: 620px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">PRODUCT TOUR</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Six steps. One exact quote.</h2>
+</div>
+<div role="tablist" aria-label="Quote steps" style="display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF">
+
+<button type="button" role="tab" aria-selected="true" data-set="{&quot;tab&quot;:0,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF">Space</button>
+
+<button type="button" role="tab" aria-selected="false" data-set="{&quot;tab&quot;:1,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858">Shape</button>
+
+<button type="button" role="tab" aria-selected="false" data-set="{&quot;tab&quot;:2,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858">Dimensions</button>
+
+<button type="button" role="tab" aria-selected="false" data-set="{&quot;tab&quot;:3,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858">Edge</button>
+
+<button type="button" role="tab" aria-selected="false" data-set="{&quot;tab&quot;:4,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858">Stone</button>
+
+<button type="button" role="tab" aria-selected="false" data-set="{&quot;tab&quot;:5,&quot;auto&quot;:false}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858">Quote</button>
+
+</div>
+</div>
+
+<div role="tabpanel" style="position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px"></div>
+<div aria-hidden="true" style="position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none"></div>
+
+<div style="position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8">STEP 01 / 06</span>
+<div style="font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05">Select your space.</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px">Kitchen, vanity, bar or a custom area. Add more rooms to the same quote.</p>
+<div style="margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8">FOR YOUR SHOP</span>
+<span style="font-size: 14px; line-height: 1.55; color: #E3E8EF">Every room lands in one lead.</span>
+</div>
+<div aria-hidden="true" style="display: flex; gap: 6px; padding-top: 18px">
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3"></span>
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)"></span>
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)"></span>
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)"></span>
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)"></span>
+
+<span style="flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)"></span>
+
+</div>
+</div>
+
+<div aria-hidden="true" style="position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px">
+
+
+<svg class="fadein" viewBox="0 0 560 320" width="100%" style="max-width: 620px">
+<g stroke="rgba(255,255,255,0.14)" stroke-width="1" fill="none"><path d="M70 200 H490"></path></g>
+<path class="flow" d="M140 200 C140 120, 280 120, 280 70" stroke="#DAE4F3" stroke-width="1.5" fill="none" stroke-dasharray="4 6"></path>
+<g font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
+<circle cx="140" cy="200" r="30" fill="rgba(218,228,243,0.12)" stroke="#DAE4F3" stroke-width="1.5"></circle><circle class="glow" cx="140" cy="200" r="7" fill="#DAE4F3"></circle><text x="140" y="256" fill="#FFFFFF">KITCHEN</text>
+<circle cx="250" cy="200" r="22" fill="none" stroke="rgba(255,255,255,0.18)"></circle><circle cx="250" cy="200" r="4" fill="rgba(255,255,255,0.35)"></circle><text x="250" y="256" fill="#6B778A">VANITY</text>
+<circle cx="360" cy="200" r="22" fill="none" stroke="rgba(255,255,255,0.18)"></circle><circle cx="360" cy="200" r="4" fill="rgba(255,255,255,0.35)"></circle><text x="360" y="256" fill="#6B778A">BAR</text>
+<circle cx="470" cy="200" r="22" fill="none" stroke="rgba(255,255,255,0.18)"></circle><circle cx="470" cy="200" r="4" fill="rgba(255,255,255,0.35)"></circle><text x="470" y="256" fill="#6B778A">OTHER</text>
+<rect x="220" y="46" width="120" height="34" rx="17" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"></rect><text x="280" y="67" fill="#E3E8EF">QUOTE #1</text>
+</g>
+</svg>
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="3" style="padding: 120px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">UNDER THE HOOD</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Built for how fabricators sell.</h2>
+</div>
+<p style="margin: 0; max-width: 360px; color: #6B7280; font-size: 16px; line-height: 1.6">The engine behind every quote.</p>
+</div>
+
+<div class="bento" style="gap: 16px">
+
+
+<div class="s6" style="position: relative; border-radius: 24px; background: #0B1220; color: #FFFFFF; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; min-height: 320px; padding: 16px">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px"></div>
+<div aria-hidden="true" style="position: absolute; top: -200px; right: -120px; width: 520px; height: 460px; background: radial-gradient(closest-side, rgba(218,228,243,0.20), transparent)"></div>
+<div style="position: relative; flex: 1 1 240px; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8">01 · MEASUREMENT</span>
+<div style="font-size: 24px; font-weight: 700; letter-spacing: -0.035em">Exact, from every corner.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #A9B4C2">Square footage computed from each vertex of the layout. Any shape, two decimals.</p>
+<div style="margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #DAE4F3">A = ½ |Σ xᵢyᵢ₊₁ − xᵢ₊₁yᵢ|</div>
+</div>
+<div aria-hidden="true" style="position: relative; flex: 1 1 300px; display: flex; align-items: center; justify-content: center; padding: 24px">
+<svg viewBox="0 0 300 220" width="100%" style="max-width: 360px">
+<path class="drawloop" pathLength="1" d="M40 40 H260 V90 H200 V130 H260 V180 H40 Z" fill="rgba(218,228,243,0.07)" stroke="#DAE4F3" stroke-width="1.5" stroke-linejoin="round"></path>
+<g fill="#0B1220" stroke="#FFFFFF" stroke-width="1.4"><circle cx="40" cy="40" r="3.5"></circle><circle cx="260" cy="40" r="3.5"></circle><circle cx="260" cy="90" r="3.5"></circle><circle cx="200" cy="90" r="3.5"></circle><circle cx="200" cy="130" r="3.5"></circle><circle cx="260" cy="130" r="3.5"></circle><circle cx="260" cy="180" r="3.5"></circle><circle cx="40" cy="180" r="3.5"></circle></g>
+<g stroke="rgba(255,255,255,0.12)" stroke-dasharray="3 4"><path d="M40 40 L200 90"></path><path d="M40 40 L200 130"></path><path d="M40 40 L260 180"></path></g>
+<g font-family="JetBrains Mono, monospace" font-size="9" fill="#8B97A8"><text x="150" y="30" text-anchor="middle">8 VERTICES</text><text x="150" y="205" text-anchor="middle">CUSTOM OUTLINE</text></g>
+</svg>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">02 · PRICING</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Rates stay on the server.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Customers get a number, never the rules.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 220px; display: flex; align-items: center; justify-content: center">
+<div style="display: flex; flex-direction: column; align-items: center">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border: 1px solid #E3E6EA; border-radius: 999px; background: #FFFFFF; color: #3F4858">browser</span>
+<svg width="2" height="26"><path class="flow" d="M1 0 V26" stroke="#3F5B7A" stroke-width="1.5" stroke-dasharray="3 5"></path></svg>
+<span style="display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 10px 14px; border-radius: 12px; background: #0B1220; color: #FFFFFF"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>pricing engine</span>
+<svg width="2" height="26"><path class="flow" d="M1 0 V26" stroke="#3F5B7A" stroke-width="1.5" stroke-dasharray="3 5"></path></svg>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 999px; background: #DAE4F3; color: #0E1726">estimate only</span>
+</div>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">03 · MULTI-ROOM</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">One quote, every room.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Kitchen, vanity and bar in one lead.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 220px; display: flex; align-items: center; justify-content: center">
+<div style="width: 100%; max-width: 260px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; height: 10px; border-radius: 10px; overflow: hidden; gap: 2px"><span class="seg" style="flex: 35.86; background: #0E1726"></span><span class="seg" style="flex: 9.32; background: #3F5B7A; animation-delay: .2s"></span><span class="seg" style="flex: 8; background: #DAE4F3; animation-delay: .4s"></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #3F4858">
+<div style="display: flex; justify-content: space-between"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 6px; height: 6px; border-radius: 2px; background: #0E1726"></span>KITCHEN</span><span>35.86</span></div>
+<div style="display: flex; justify-content: space-between"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 6px; height: 6px; border-radius: 2px; background: #3F5B7A"></span>VANITY</span><span>9.32</span></div>
+<div style="display: flex; justify-content: space-between"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 6px; height: 6px; border-radius: 2px; background: #DAE4F3; border: 1px solid #C3D2E8"></span>BAR</span><span>8.00</span></div>
+<div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #E3E6EA; color: #0E1726; font-weight: 500"><span>TOTAL SQ FT</span><span>53.18</span></div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">04 · DELIVERY</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Two emails, instantly.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Estimate to the customer, lead to you.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 220px; display: flex; align-items: center; justify-content: center">
+<div style="position: relative; width: 100%; max-width: 280px; height: 120px">
+<svg viewBox="0 0 280 120" width="100%" height="100%" style="position: absolute; inset: 0"><path class="flow" d="M18 60 C90 60, 110 24, 170 24" fill="none" stroke="#C3CAD3" stroke-width="1.4" stroke-dasharray="3 5"></path><path class="flow" d="M18 60 C90 60, 110 96, 170 96" fill="none" stroke="#C3CAD3" stroke-width="1.4" stroke-dasharray="3 5"></path><circle cx="18" cy="60" r="10" fill="#DAE4F3"></circle><circle class="glow" cx="18" cy="60" r="5" fill="#3F5B7A"></circle></svg>
+<span style="position: absolute; right: 0; top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 6px 10px; border-radius: 8px; border: 1px solid #E3E6EA; background: #FFFFFF; color: #0E1726">→ CUSTOMER</span>
+<span style="position: absolute; right: 0; bottom: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 6px 10px; border-radius: 8px; background: #0E1726; color: #FFFFFF">→ YOUR SALES</span>
+</div>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">05 · EMBED</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">On your domain.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Your site, your logo, your colors.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 220px; display: flex; align-items: center; justify-content: center">
+<div style="width: 100%; max-width: 260px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid #E3E6EA; background: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #3F4858"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>yourshop.com/quote</div>
+<div style="padding: 12px 14px; border-radius: 10px; background: #0B1220; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7; color: #DAE4F3"><span style="color: #6B778A">&lt;</span>apex-quote<span style="color: #6B778A">&gt;</span><span class="caret" style="display: inline-block; width: 6px; height: 12px; margin-left: 3px; background: #FFFFFF; vertical-align: middle"></span></div>
+</div>
+</div>
+</div>
+
+
+<div class="s6" style="border: 1px solid #ECEEF2; border-radius: 24px; background: linear-gradient(120deg, #FFFFFF 40%, #F1F4F8); display: flex; flex-wrap: wrap; overflow: hidden; min-height: 220px">
+<div style="flex: 1 1 320px; padding: 32px; display: flex; flex-direction: column; gap: 12px; justify-content: center">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #6B7280">06 · AI</span>
+<div style="font-size: 24px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Sketch in. Layout out.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280; max-width: 360px">Upload a hand-drawn sketch and AI extracts a clean outline to start the quote.</p>
+</div>
+<div aria-hidden="true" style="flex: 2 1 480px; position: relative; display: flex; align-items: center; justify-content: center; gap: 18px; padding: 24px 32px">
+<svg viewBox="0 0 200 120" width="40%" style="max-width: 220px"><path d="M22 22 C70 18, 130 26, 178 20 C182 40, 176 48, 180 58 C140 61, 108 55, 82 60 C85 80, 80 92, 83 104 C66 102, 44 106, 21 101 C25 76, 19 48, 22 22 Z" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"></path></svg>
+<svg width="64" height="12" viewBox="0 0 64 12"><path class="flow" d="M0 6 H56" stroke="#3F5B7A" stroke-width="1.5" stroke-dasharray="3 5"></path><path d="M54 1 L60 6 L54 11" fill="none" stroke="#3F5B7A" stroke-width="1.5"></path></svg>
+<svg viewBox="0 0 200 120" width="40%" style="max-width: 220px"><path class="drawloop" pathLength="1" d="M22 20 H180 V58 H83 V104 H22 Z" fill="rgba(63,91,122,0.06)" stroke="#0E1726" stroke-width="1.6" stroke-linejoin="round"></path><g fill="#FFFFFF" stroke="#0E1726" stroke-width="1.3"><circle cx="22" cy="20" r="3"></circle><circle cx="180" cy="20" r="3"></circle><circle cx="180" cy="58" r="3"></circle><circle cx="83" cy="58" r="3"></circle><circle cx="83" cy="104" r="3"></circle><circle cx="22" cy="104" r="3"></circle></g></svg>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="4" style="padding: 0 24px 120px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: center">
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">FOR YOUR TEAM</div>
+<h2 style="margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726">Every lead arrives complete.</h2>
+<p style="margin: 0; color: #6B7280; font-size: 17px; line-height: 1.6; max-width: 400px">Measurements, selections and the layout, in your inbox the moment the customer finishes.</p>
+</div>
+<div aria-hidden="true" style="flex: 1.3 1 480px; position: relative; padding: 0 0 28px">
+<div style="position: absolute; left: 36px; right: 36px; bottom: 0; height: 60px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; opacity: 0.5"></div>
+<div style="position: absolute; left: 18px; right: 18px; bottom: 14px; height: 60px; border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; opacity: 0.8"></div>
+<div class="leadin" style="position: relative; border: 1px solid #E3E6EA; border-radius: 16px; background: #FFFFFF; box-shadow: 0 24px 60px -36px rgba(14,23,38,0.35)">
+<div style="display: flex; align-items: center; gap: 12px; padding: 16px 20px">
+<span style="flex: none; width: 28px; height: 28px; border-radius: 8px; background: #0E1726; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">A</span>
+<span style="flex: 1; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 700; color: #0E1726">New lead</span><span style="color: #6B7280"> · Kitchen remodel</span></span>
+<span style="display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280"><span class="livedot" style="width: 6px; height: 6px; border-radius: 50%; background: #3F5B7A"></span>now</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #ECEEF2">
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">ROOM</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Kitchen</span>
+</div>
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">SHAPE</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">L-shape</span>
+</div>
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">AREA</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">35.86 sq ft</span>
+</div>
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">STONE</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Calacatta quartz</span>
+</div>
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">EDGE</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Bevel · 14.75 ft</span>
+</div>
+
+<div style="padding: 14px 20px; border-bottom: 1px solid #ECEEF2; border-right: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #6B7280">CUTOUTS</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Sink, cooktop</span>
+</div>
+
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">→ sales@yourshop.com</span>
+<span style="font-size: 13px; font-weight: 600; color: #0E1726">Open lead →</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="5" style="padding: 0 24px 110px">
+<div style="position: relative; max-width: 1200px; margin: 0 auto; border-radius: 28px; background: #0E1726; color: #FFFFFF; padding: clamp(40px, 6vw, 80px); display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: space-between; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -200px; right: -160px; width: 600px; height: 500px; background: radial-gradient(closest-side, rgba(63,91,122,0.55), transparent); pointer-events: none"></div>
+<h2 style="position: relative; margin: 0; flex: 1 1 420px; font-size: clamp(34px, 5vw, 56px); letter-spacing: -0.05em; line-height: 1.02; font-weight: 700">See it with your stones and your pricing.</h2>
+<div style="position: relative; display: flex; gap: 10px; flex-wrap: wrap">
+<a href="contact.html" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; background: #FFFFFF; color: #0E1726">Book a demo</a>
+<a href="https://ctop-quote.vercel.app/" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.22); color: #FFFFFF">Try the live demo</a>
+</div>
+</div>
+</section>
+
+
+<footer style="border-top: 1px solid #ECEEF2; padding: 48px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px">
+<span style="font-weight: 700; font-size: 20px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<p style="margin: 0; font-size: 14px; color: #6B7280; line-height: 1.6">Instant, accurate quoting for countertop fabricators.</p>
+</div>
+<div style="display: flex; gap: 64px; flex-wrap: wrap; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">PRODUCT</span><a href="platform.html">Platform</a><a href="pricing.html">Pricing</a><a href="security.html">Security</a><a href="https://ctop-quote.vercel.app/">Live demo</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">COMPANY</span><a href="about.html">About</a><a href="contact.html">Book a demo</a><a href="contact.html">Contact</a></div>
+</div>
+</div>
+<div style="max-width: 1200px; margin: 40px auto 0; font-size: 13px; color: #6B7280">© 2026 Apex. All rights reserved.</div>
+</footer>
+
+</div>
+<script>window.__DYN={"keys":["tab"],"state":{"tab":0,"auto":true},"sections":{"2":{"[0]":0,"[1]":1,"[2]":2,"[3]":3,"[4]":4,"[5]":5}},"html":["\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 01 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Select your space.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">Kitchen, vanity, bar or a custom area. Add more rooms to the same quote.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">Every room lands in one lead.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\u003csvg class=\"fadein\" viewBox=\"0 0 560 320\" width=\"100%\" style=\"max-width: 620px\">\n\u003cg stroke=\"rgba(255,255,255,0.14)\" stroke-width=\"1\" fill=\"none\">\u003cpath d=\"M70 200 H490\"/>\u003c/g>\n\u003cpath class=\"flow\" d=\"M140 200 C140 120, 280 120, 280 70\" stroke=\"#DAE4F3\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"4 6\"/>\n\u003cg font-family=\"JetBrains Mono, monospace\" font-size=\"11\" text-anchor=\"middle\">\n\u003ccircle cx=\"140\" cy=\"200\" r=\"30\" fill=\"rgba(218,228,243,0.12)\" stroke=\"#DAE4F3\" stroke-width=\"1.5\"/>\u003ccircle class=\"glow\" cx=\"140\" cy=\"200\" r=\"7\" fill=\"#DAE4F3\"/>\u003ctext x=\"140\" y=\"256\" fill=\"#FFFFFF\">KITCHEN\u003c/text>\n\u003ccircle cx=\"250\" cy=\"200\" r=\"22\" fill=\"none\" stroke=\"rgba(255,255,255,0.18)\"/>\u003ccircle cx=\"250\" cy=\"200\" r=\"4\" fill=\"rgba(255,255,255,0.35)\"/>\u003ctext x=\"250\" y=\"256\" fill=\"#6B778A\">VANITY\u003c/text>\n\u003ccircle cx=\"360\" cy=\"200\" r=\"22\" fill=\"none\" stroke=\"rgba(255,255,255,0.18)\"/>\u003ccircle cx=\"360\" cy=\"200\" r=\"4\" fill=\"rgba(255,255,255,0.35)\"/>\u003ctext x=\"360\" y=\"256\" fill=\"#6B778A\">BAR\u003c/text>\n\u003ccircle cx=\"470\" cy=\"200\" r=\"22\" fill=\"none\" stroke=\"rgba(255,255,255,0.18)\"/>\u003ccircle cx=\"470\" cy=\"200\" r=\"4\" fill=\"rgba(255,255,255,0.35)\"/>\u003ctext x=\"470\" y=\"256\" fill=\"#6B778A\">OTHER\u003c/text>\n\u003crect x=\"220\" y=\"46\" width=\"120\" height=\"34\" rx=\"17\" fill=\"rgba(255,255,255,0.06)\" stroke=\"rgba(255,255,255,0.16)\"/>\u003ctext x=\"280\" y=\"67\" fill=\"#E3E8EF\">QUOTE #1\u003c/text>\n\u003c/g>\n\u003c/svg>\n\n\n\n\n\n\n\n\n\n\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 02 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Choose a shape.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">Straight runs, L, U, islands or a custom outline.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">Area comes from every corner, not a guess.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\n\n\u003csvg class=\"fadein\" viewBox=\"0 0 560 320\" width=\"100%\" style=\"max-width: 620px\">\n\u003cg fill=\"none\" stroke=\"rgba(255,255,255,0.10)\" stroke-width=\"1\">\u003cpath d=\"M40 40 H140 V70 H40 Z\"/>\u003cpath d=\"M420 40 H520 V120 H495 V65 H465 V120 H420 Z\"/>\u003cpath d=\"M60 230 H150 V280 H60 Z\"/>\u003c/g>\n\u003cpath class=\"drawline\" pathLength=\"1\" d=\"M170 70 H410 V122 H232 V270 H170 Z\" fill=\"rgba(218,228,243,0.08)\" stroke=\"#DAE4F3\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\n\u003cg fill=\"#0B1220\" stroke=\"#FFFFFF\" stroke-width=\"1.5\">\u003ccircle cx=\"170\" cy=\"70\" r=\"4\"/>\u003ccircle cx=\"410\" cy=\"70\" r=\"4\"/>\u003ccircle cx=\"410\" cy=\"122\" r=\"4\"/>\u003ccircle cx=\"232\" cy=\"122\" r=\"4\"/>\u003ccircle cx=\"232\" cy=\"270\" r=\"4\"/>\u003ccircle cx=\"170\" cy=\"270\" r=\"4\"/>\u003c/g>\n\u003cg font-family=\"JetBrains Mono, monospace\" font-size=\"10\" fill=\"#8B97A8\">\u003ctext x=\"160\" y=\"60\" text-anchor=\"end\">(0,0)\u003c/text>\u003ctext x=\"420\" y=\"60\">(132,0)\u003c/text>\u003ctext x=\"420\" y=\"136\">(132,25.5)\u003c/text>\u003ctext x=\"242\" y=\"138\">(25.5,25.5)\u003c/text>\u003ctext x=\"242\" y=\"282\">(25.5,96)\u003c/text>\u003ctext x=\"160\" y=\"286\" text-anchor=\"end\">(0,96)\u003c/text>\u003c/g>\n\u003ctext x=\"300\" y=\"210\" font-family=\"JetBrains Mono, monospace\" font-size=\"11\" fill=\"#E3E8EF\">L-SHAPE · 6 VERTICES\u003c/text>\n\u003c/svg>\n\n\n\n\n\n\n\n\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 03 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Enter dimensions.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">The drawing updates as each measurement goes in.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">Square feet are exact, to two decimals.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\n\n\n\n\u003cdiv class=\"fadein\" style=\"width: 100%; max-width: 620px; display: flex; flex-direction: column; align-items: center; gap: 18px\">\n\u003csvg viewBox=\"0 0 560 250\" width=\"100%\">\n\u003cpath d=\"M150 40 H410 V92 H212 V230 H150 Z\" fill=\"rgba(218,228,243,0.08)\" stroke=\"#DAE4F3\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\n\u003cg stroke=\"rgba(255,255,255,0.45)\" stroke-width=\"1\" fill=\"none\">\u003cpath d=\"M150 22 H410 M150 16 V28 M410 16 V28\"/>\u003cpath d=\"M430 40 V92 M424 40 H436 M424 92 H436\"/>\u003cpath d=\"M130 40 V230 M124 40 H136 M124 230 H136\"/>\u003c/g>\n\u003cg font-family=\"JetBrains Mono, monospace\" font-size=\"11\" fill=\"#FFFFFF\" text-anchor=\"middle\">\u003crect x=\"252\" y=\"12\" width=\"56\" height=\"20\" rx=\"4\" fill=\"#0B1220\"/>\u003ctext x=\"280\" y=\"26\">132″\u003c/text>\u003ctext x=\"462\" y=\"70\">25.5″\u003c/text>\u003crect x=\"104\" y=\"125\" width=\"52\" height=\"20\" rx=\"4\" fill=\"#0B1220\"/>\u003ctext x=\"130\" y=\"139\">96″\u003c/text>\u003c/g>\n\u003c/svg>\n\u003cdiv style=\"display: flex; align-items: baseline; gap: 10px; color: #FFFFFF\">\u003cspan style=\"font-size: clamp(48px, 6vw, 72px); font-weight: 700; letter-spacing: -0.05em\">\u003cspan class=\"cnt\">\u003c/span>.86\u003c/span>\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #8B97A8\">SQ FT\u003c/span>\u003c/div>\n\u003c/div>\n\n\n\n\n\n\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 04 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Pick an edge.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">Profiles shown side by side, in plain language.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">Exposed edges are measured in linear feet.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\n\n\n\n\n\n\u003cdiv class=\"fadein\" style=\"width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 4px\">\n\n\u003cdiv style=\"display: flex; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); opacity: 0.35\">\n\u003csvg width=\"160\" height=\"40\" viewBox=\"0 0 160 40\" fill=\"none\" style=\"flex: none\">\u003cpath d=\"M4 8h130q8 0 8 8v8q0 8-8 8H4\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\u003c/svg>\n\u003cspan style=\"flex: 1; font-size: 16px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em\">Eased\u003c/span>\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #DAE4F3\">STANDARD\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); opacity: 1\">\n\u003csvg width=\"160\" height=\"40\" viewBox=\"0 0 160 40\" fill=\"none\" style=\"flex: none\">\u003cpath d=\"M4 8h124l14 14v10H4\" stroke=\"#DAE4F3\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\u003c/svg>\n\u003cspan style=\"flex: 1; font-size: 16px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em\">Bevel\u003c/span>\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #DAE4F3\">14.75 LIN FT\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); opacity: 0.35\">\n\u003csvg width=\"160\" height=\"40\" viewBox=\"0 0 160 40\" fill=\"none\" style=\"flex: none\">\u003cpath d=\"M4 8h118q20 0 20 20v4H4\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\u003c/svg>\n\u003cspan style=\"flex: 1; font-size: 16px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em\">Half bullnose\u003c/span>\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #DAE4F3\">ROUNDED TOP\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); opacity: 0.35\">\n\u003csvg width=\"160\" height=\"40\" viewBox=\"0 0 160 40\" fill=\"none\" style=\"flex: none\">\u003cpath d=\"M4 8h126a12 12 0 0 1 0 24H4\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\u003c/svg>\n\u003cspan style=\"flex: 1; font-size: 16px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em\">Full bullnose\u003c/span>\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #DAE4F3\">FULL ROUND\u003c/span>\n\u003c/div>\n\n\u003cdiv style=\"display: flex; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); opacity: 0.35\">\n\u003csvg width=\"160\" height=\"40\" viewBox=\"0 0 160 40\" fill=\"none\" style=\"flex: none\">\u003cpath d=\"M4 8h124c8 0 6 8 12 10 6 2 4 14-4 14H4\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\u003c/svg>\n\u003cspan style=\"flex: 1; font-size: 16px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em\">Ogee\u003c/span>\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #DAE4F3\">S-CURVE\u003c/span>\n\u003c/div>\n\n\u003c/div>\n\n\n\n\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 05 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Choose the stone.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">Browse your catalog by type and color.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">Your stones, your tiers, your prices.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.12)\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\n\n\n\n\n\n\n\n\u003cdiv class=\"fadein\" style=\"width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 16px\">\n\u003cdiv style=\"display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px\">\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #F4F5F7; box-shadow: 0 0 0 2px #0B1220, 0 0 0 4px #DAE4F3; opacity: 1\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #7C8693; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #1A2029; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #B8C0CA; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #323B46; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #E6E8EC; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #5F6975; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #121821; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #9AA3AE; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #252D37; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #D2D7DE; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #46505C; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #F4F5F7; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #7C8693; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #1A2029; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #B8C0CA; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #323B46; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003cspan style=\"aspect-ratio: 1; border-radius: 10px; background: #E6E8EC; box-shadow: none; opacity: 0.55\">\u003c/span>\n\n\u003c/div>\n\u003cdiv style=\"display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B97A8\">\u003cspan>SELECTED · \u003cspan style=\"color: #FFFFFF\">CALACATTA QUARTZ\u003c/span>\u003c/span>\u003cspan>700+ IN CATALOG\u003c/span>\u003c/div>\n\u003c/div>\n\n\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px\">\n\u003cdiv style=\"display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap\">\n\u003cdiv style=\"max-width: 620px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">PRODUCT TOUR\u003c/div>\n\u003ch2 style=\"margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726\">Six steps. One exact quote.\u003c/h2>\n\u003c/div>\n\u003cdiv role=\"tablist\" aria-label=\"Quote steps\" style=\"display: flex; gap: 4px; flex-wrap: wrap; padding: 4px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF\">\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:0,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Space\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:1,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Shape\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:2,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Dimensions\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:3,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Edge\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"false\" data-set=\"{&quot;tab&quot;:4,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: #3F4858\">Stone\u003c/button>\n\n\u003cbutton type=\"button\" role=\"tab\" aria-selected=\"true\" data-set=\"{&quot;tab&quot;:5,&quot;auto&quot;:false}\" style=\"min-height: 40px; padding: 0 16px; border-radius: 999px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: #0E1726; color: #FFFFFF\">Quote\u003c/button>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv role=\"tabpanel\" style=\"position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; display: flex; flex-wrap: wrap; min-height: 500px; box-shadow: 0 40px 100px -50px rgba(11,18,32,0.7)\">\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px\">\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"position: absolute; top: -240px; right: -120px; width: 720px; height: 620px; background: radial-gradient(closest-side, rgba(218,228,243,0.22), transparent); pointer-events: none\">\u003c/div>\n\n\u003cdiv style=\"position: relative; flex: 1 1 300px; padding: clamp(28px, 4vw, 48px); display: flex; flex-direction: column; gap: 14px; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,0.08)\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8B97A8\">STEP 06 / 06\u003c/span>\n\u003cdiv style=\"font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05\">Get the quote.\u003c/div>\n\u003cp style=\"margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 300px\">An instant estimate, emailed to the customer.\u003c/p>\n\u003cdiv style=\"margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 6px\">\n\u003cspan style=\"font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #8B97A8\">FOR YOUR SHOP\u003c/span>\n\u003cspan style=\"font-size: 14px; line-height: 1.55; color: #E3E8EF\">You get the lead with every detail.\u003c/span>\n\u003c/div>\n\u003cdiv aria-hidden=\"true\" style=\"display: flex; gap: 6px; padding-top: 18px\">\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003cspan style=\"flex: 1; height: 2px; border-radius: 2px; background: #DAE4F3\">\u003c/span>\n\n\u003c/div>\n\u003c/div>\n\n\u003cdiv aria-hidden=\"true\" style=\"position: relative; flex: 2 1 520px; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 32px\">\n\n\n\n\n\n\n\n\n\n\n\n\n\u003csvg class=\"fadein\" viewBox=\"0 0 560 300\" width=\"100%\" style=\"max-width: 620px\">\n\u003cg font-family=\"JetBrains Mono, monospace\" font-size=\"10\">\n\u003crect x=\"20\" y=\"35\" width=\"150\" height=\"30\" rx=\"8\" fill=\"rgba(255,255,255,0.05)\" stroke=\"rgba(255,255,255,0.12)\"/>\u003ctext x=\"32\" y=\"54\" fill=\"#E3E8EF\">SHAPE · L\u003c/text>\n\u003crect x=\"20\" y=\"85\" width=\"150\" height=\"30\" rx=\"8\" fill=\"rgba(255,255,255,0.05)\" stroke=\"rgba(255,255,255,0.12)\"/>\u003ctext x=\"32\" y=\"104\" fill=\"#E3E8EF\">AREA · 35.86 SQ FT\u003c/text>\n\u003crect x=\"20\" y=\"135\" width=\"150\" height=\"30\" rx=\"8\" fill=\"rgba(255,255,255,0.05)\" stroke=\"rgba(255,255,255,0.12)\"/>\u003ctext x=\"32\" y=\"154\" fill=\"#E3E8EF\">EDGE · BEVEL 14.75 FT\u003c/text>\n\u003crect x=\"20\" y=\"185\" width=\"150\" height=\"30\" rx=\"8\" fill=\"rgba(255,255,255,0.05)\" stroke=\"rgba(255,255,255,0.12)\"/>\u003ctext x=\"32\" y=\"204\" fill=\"#E3E8EF\">STONE · QZ-214\u003c/text>\n\u003crect x=\"20\" y=\"235\" width=\"150\" height=\"30\" rx=\"8\" fill=\"rgba(255,255,255,0.05)\" stroke=\"rgba(255,255,255,0.12)\"/>\u003ctext x=\"32\" y=\"254\" fill=\"#E3E8EF\">CUTOUTS · 2\u003c/text>\n\u003c/g>\n\u003cg fill=\"none\" stroke=\"rgba(218,228,243,0.5)\" stroke-width=\"1.2\">\u003cpath d=\"M170 50 C230 50, 220 150, 260 150\"/>\u003cpath d=\"M170 100 C230 100, 220 150, 260 150\"/>\u003cpath d=\"M170 150 H260\"/>\u003cpath d=\"M170 200 C230 200, 220 150, 260 150\"/>\u003cpath d=\"M170 250 C230 250, 220 150, 260 150\"/>\u003cpath class=\"flow\" d=\"M380 150 H420\" stroke=\"#DAE4F3\" stroke-dasharray=\"4 6\"/>\u003c/g>\n\u003crect x=\"260\" y=\"110\" width=\"120\" height=\"80\" rx=\"16\" fill=\"rgba(218,228,243,0.10)\" stroke=\"#DAE4F3\" stroke-width=\"1.5\"/>\n\u003cg fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linecap=\"round\" transform=\"translate(308 122)\">\u003crect x=\"2\" y=\"9\" width=\"20\" height=\"14\" rx=\"3\"/>\u003cpath d=\"M6 9V6a6 6 0 0 1 12 0v3\"/>\u003c/g>\n\u003ctext x=\"320\" y=\"174\" text-anchor=\"middle\" font-family=\"JetBrains Mono, monospace\" font-size=\"10\" fill=\"#E3E8EF\">PRICING ENGINE\u003c/text>\n\u003crect class=\"glowbox\" x=\"420\" y=\"116\" width=\"124\" height=\"68\" rx=\"14\" fill=\"#FFFFFF\"/>\n\u003ctext x=\"482\" y=\"142\" text-anchor=\"middle\" font-family=\"JetBrains Mono, monospace\" font-size=\"9\" fill=\"#6B7280\">ESTIMATE\u003c/text>\n\u003ctext x=\"482\" y=\"166\" text-anchor=\"middle\" font-family=\"Plus Jakarta Sans, sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#0E1726\">Sent ✓\u003c/text>\n\u003c/svg>\n\n\n\u003c/div>\n\u003c/div>\n\u003c/div>\n"],"timer":{"key":"tab","n":6,"ms":6000}};</script><script>(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.body.firstElementChild;
+  if (root) root.classList.add('page');
+
+  /* header shadow on scroll */
+  var header = document.querySelector('header');
+  function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* hero headline: words rise in */
+  var h1 = document.querySelector('h1');
+  if (h1 && !reduce) {
+    var i = 0, frag = document.createDocumentFragment();
+    Array.prototype.slice.call(h1.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); s.textContent = part; frag.appendChild(s);
+        });
+      } else if (n.nodeType === 1) {
+        var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w);
+      }
+    });
+    h1.textContent = ''; h1.appendChild(frag);
+    h1.setAttribute('aria-label', h1.textContent);
+  }
+
+  /* hover lift on cards */
+  function markLift(scope) {
+    scope.querySelectorAll('.bento > *, [style*="display: grid"] > [style*="border-radius: 2"]').forEach(function (el) {
+      if (/border: 1px/.test(el.getAttribute('style') || '')) el.classList.add('lift');
+    });
+  }
+  markLift(document);
+
+  /* scroll reveal for content below the first screen */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cands = [];
+    document.querySelectorAll('main, section').forEach(function (sec) {
+      var grids = sec.querySelectorAll('.bento, [style*="display: grid"]');
+      grids.forEach(function (g) { Array.prototype.forEach.call(g.children, function (c, idx) { cands.push([c, Math.min(idx, 6) * 0.08]); }); });
+      sec.querySelectorAll('[style*="max-width: 1200px"]').forEach(function (box) {
+        Array.prototype.forEach.call(box.children, function (c, idx) {
+          if (c.querySelector('.bento, [style*="display: grid"]') || c.matches('.bento, [style*="display: grid"]')) return;
+          cands.push([c, Math.min(idx, 4) * 0.08]);
+        });
+      });
+    });
+    var fold = window.innerHeight * 0.92;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    var seen = new Set();
+    cands.forEach(function (c) {
+      var el = c[0];
+      if (seen.has(el)) return; seen.add(el);
+      if (el.closest('header, footer')) return;
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add('rv'); el.style.setProperty('--d', c[1] + 's'); io.observe(el);
+    });
+  }
+
+  /* page transitions */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
+    var href = a.getAttribute('href');
+    if (!/^[\w-]+\.html(#.*)?$/.test(href)) return;
+    e.preventDefault();
+    if (reduce) { location.href = href; return; }
+    document.body.classList.add('leaving');
+    setTimeout(function () { location.href = href; }, 280);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) document.body.classList.remove('leaving'); });
+
+  /* interactive state: tabs, toggles, FAQ, forms */
+  var D = window.__DYN;
+  if (!D) return;
+  var state = D.state;
+  var tpl = document.createElement('template');
+
+  function keyOf() { return JSON.stringify(D.keys.map(function (k) { return state[k]; })); }
+
+  function morph(oldEl, newEl) {
+    // attributes
+    Array.prototype.slice.call(oldEl.attributes).forEach(function (a) { if (!newEl.hasAttribute(a.name) && a.name !== 'class') oldEl.removeAttribute(a.name); });
+    Array.prototype.slice.call(newEl.attributes).forEach(function (a) {
+      if (a.name === 'class') {
+        var keep = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); });
+        oldEl.setAttribute('class', a.value); keep.forEach(function (c) { oldEl.classList.add(c); });
+      } else if (oldEl.getAttribute(a.name) !== a.value) oldEl.setAttribute(a.name, a.value);
+    });
+    if (!newEl.hasAttribute('class')) { var keep2 = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); }); oldEl.removeAttribute('class'); keep2.forEach(function (c) { oldEl.classList.add(c); }); }
+    var oc = Array.prototype.slice.call(oldEl.childNodes), nc = Array.prototype.slice.call(newEl.childNodes);
+    var len = Math.max(oc.length, nc.length);
+    for (var i = 0; i < len; i++) {
+      var o = oc[i], n = nc[i];
+      if (!n) { oldEl.removeChild(o); continue; }
+      if (!o) { var add = n.cloneNode(true); oldEl.appendChild(add); if (add.nodeType === 1) add.classList.add('swap-in'); continue; }
+      if (o.nodeType !== n.nodeType || o.nodeName !== n.nodeName) {
+        var rep = n.cloneNode(true); oldEl.replaceChild(rep, o); if (rep.nodeType === 1) rep.classList.add('swap-in'); continue;
+      }
+      if (o.nodeType === 3) { if (o.textContent !== n.textContent) o.textContent = n.textContent; continue; }
+      if (o.nodeType === 1) morph(o, n);
+    }
+  }
+
+  function update() {
+    var k = keyOf();
+    Object.keys(D.sections).forEach(function (idx) {
+      var map = D.sections[idx]; var hi = map[k]; if (hi == null) return;
+      var sec = document.querySelector('[data-sec="' + idx + '"]'); if (!sec || sec.__k === k) return;
+      tpl.innerHTML = '<section>' + D.html[hi] + '</section>';
+      var fresh = tpl.content.firstElementChild;
+      Array.prototype.slice.call(sec.childNodes).forEach(function () {});
+      var shell = sec.cloneNode(false); while (fresh.firstChild) shell.appendChild(fresh.firstChild);
+      morph(sec, shell); sec.__k = k;
+      markLift(sec);
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-set]');
+    if (!b) return;
+    var patch = JSON.parse(b.getAttribute('data-set'));
+    var form = b.closest('form');
+    if (form && patch.sent === true) {
+      var name = form.querySelector('#d-name'), mail = form.querySelector('#d-email');
+      if (name) name.required = true; if (mail) mail.required = true;
+      if (!form.reportValidity()) return;
+    }
+    Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
+    update();
+  });
+  document.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  if (D.timer && !reduce) {
+    setInterval(function () {
+      if (state.auto === false || document.hidden) return;
+      state[D.timer.key] = (state[D.timer.key] + 1) % D.timer.n; update();
+    }, D.timer.ms);
+  }
+})();
+</script>
+</body>
+</html>

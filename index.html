@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apex — Instant countertop quotes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apex turns a homeowner's measurements into a priced countertop estimate on your website, with your pricing kept on the server.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#111827;text-decoration:none}a:hover{color:#3F5B7A}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px}
+.s2{grid-column:span 2}.s3{grid-column:span 3}.s4{grid-column:span 4}.s6{grid-column:span 6}
+@media (max-width:900px){.bento{grid-template-columns:repeat(2,minmax(0,1fr))}.s2,.s3,.s4,.s6{grid-column:span 2}}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 6s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes draw{0%{stroke-dashoffset:1}35%{stroke-dashoffset:0}85%{stroke-dashoffset:0;opacity:1}95%{opacity:0}100%{stroke-dashoffset:1;opacity:0}}
+.fill-in{animation:fillin 6s ease infinite}
+@keyframes fillin{0%,30%{opacity:0}42%,85%{opacity:1}95%,100%{opacity:0}}
+.pop{transform-box:fill-box;transform-origin:center;animation:pop 6s ease infinite}
+@keyframes pop{0%,8%{transform:scale(0);opacity:0}14%{transform:scale(1.4);opacity:1}18%,85%{transform:scale(1);opacity:1}95%,100%{opacity:0}}
+.fade-label{animation:label 6s ease infinite}
+@keyframes label{0%,38%{opacity:0;transform:translateY(4px)}46%,85%{opacity:1;transform:none}95%,100%{opacity:0}}
+.bar{animation:bar 6s cubic-bezier(.65,0,.35,1) infinite;transform-origin:left}
+@keyframes bar{0%{transform:scaleX(.25)}40%{transform:scaleX(.375)}85%{transform:scaleX(.375)}100%{transform:scaleX(.25)}}
+.toast{animation:toast 6s ease infinite}
+@keyframes toast{0%,55%{opacity:0;transform:translateY(16px)}63%,88%{opacity:1;transform:none}96%,100%{opacity:0;transform:translateY(-6px)}}
+.float{animation:float 5s ease-in-out infinite}
+.float2{animation:float 6s ease-in-out -2s infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.marquee{display:flex;gap:14px;width:max-content;animation:marquee 28s linear infinite}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.shape{animation:shape 9s ease infinite;opacity:0}
+.shape.d1{animation-delay:3s}.shape.d2{animation-delay:6s}
+@keyframes shape{0%{opacity:0;transform:scale(.92)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:scale(1.04)}}
+.packet{animation:packet 2.6s cubic-bezier(.65,0,.35,1) infinite}
+.packet.back{animation-delay:1.3s;animation-direction:reverse}
+@keyframes packet{0%{left:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{left:calc(100% - 10px);opacity:0}}
+.mail{animation:mail 7.5s ease infinite;opacity:0}
+.mail.m1{animation-delay:2.5s}.mail.m2{animation-delay:5s}
+@keyframes mail{0%{opacity:0;transform:translateY(18px) scale(.97)}8%,30%{opacity:1;transform:none}38%,100%{opacity:0;transform:translateY(-12px)}}
+.sketch-clean{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 5s cubic-bezier(.65,0,.35,1) infinite}
+.scan{animation:scan 5s ease-in-out infinite}
+@keyframes scan{0%{transform:translateY(0);opacity:0}8%{opacity:.9}35%{transform:translateY(150px);opacity:.9}40%,100%{transform:translateY(150px);opacity:0}}
+.cursor{animation:cursor 6s ease-in-out infinite}
+@keyframes cursor{0%{transform:translate(0,0)}35%{transform:translate(-120px,-44px)}45%{transform:translate(-120px,-44px) scale(.85)}50%,70%{transform:translate(-120px,-44px)}100%{transform:translate(0,0)}}
+.ring{animation:ring 6s ease infinite}
+@keyframes ring{0%,40%{box-shadow:0 0 0 0 rgba(63,91,122,0)}48%{box-shadow:0 0 0 6px rgba(63,91,122,.18)}70%,100%{box-shadow:0 0 0 0 rgba(63,91,122,0)}}
+.stepdot{animation:stepdot 8s steps(1) infinite}
+@keyframes progress{0%{transform:scaleX(0)}90%,100%{transform:scaleX(1)}}
+.progress{transform-origin:left;animation:progress 8s cubic-bezier(.45,0,.2,1) infinite}
+.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+@property --sq{syntax:'<integer>';inherits:false;initial-value:0}
+.count{counter-reset:sq var(--sq);animation:count 9s cubic-bezier(.2,.7,.2,1) infinite}
+.count::after{content:counter(sq)}
+.count.d1{animation-delay:3s}.count.d2{animation-delay:6s}
+.count.t35{--t:35}.count.t41{--t:41}.count.t27{--t:27}
+@keyframes count{0%,6%{--sq:0}22%,100%{--sq:var(--t)}}
+.draw9{stroke-dasharray:1;stroke-dashoffset:1;animation:draw9 9s cubic-bezier(.65,0,.35,1) infinite}
+.draw9.d1{animation-delay:3s}.draw9.d2{animation-delay:6s}
+@keyframes draw9{0%{stroke-dashoffset:1}13%,100%{stroke-dashoffset:0}}
+.vx{transform-box:fill-box;transform-origin:center;transform:scale(0);animation:vx 9s ease infinite}
+@keyframes vx{0%{transform:scale(0)}2%{transform:scale(1.6)}4%,100%{transform:scale(1)}}
+.row-in{opacity:0;animation:rowin 9s ease infinite}
+@keyframes rowin{0%{opacity:0;transform:translateX(-6px)}3%,100%{opacity:1;transform:none}}
+.nudge{animation:nudge 4s ease-in-out infinite}.nudge.n2{animation-duration:3.4s;animation-delay:-1.3s}.nudge.n3{animation-duration:2.6s;animation-delay:-.8s}
+@keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,-4px)}}
+.swapA{animation:swapA 3s steps(1) infinite}.swapB{opacity:0;animation:swapB 3s steps(1) infinite}
+@keyframes swapA{0%{opacity:1}50%{opacity:0}}@keyframes swapB{0%{opacity:0}50%{opacity:1}}
+.bub{opacity:0;animation:bub 8s ease infinite}
+@keyframes bub{0%{opacity:0;transform:translateY(8px) scale(.96)}4%,90%{opacity:1;transform:none}100%{opacity:0}}
+.shake{animation:shake 1.2s ease-in-out infinite}
+@keyframes shake{0%,60%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(-14deg)}20%,40%{transform:rotate(14deg)}}
+.phonebar{transform-origin:left;animation:phonebar 8s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes phonebar{0%{transform:scaleX(0)}35%,92%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+.chk{transform:scale(0);animation:chk 8s ease infinite}
+@keyframes chk{0%{transform:scale(0)}3%{transform:scale(1.3)}5%,92%{transform:scale(1)}100%{transform:scale(0)}}
+.late{opacity:0;animation:late 8s ease infinite}.late.l2{animation-delay:.6s}.late.l3{animation-delay:1.2s}
+@keyframes late{0%,40%{opacity:0;transform:translateY(10px)}46%,92%{opacity:1;transform:none}100%{opacity:0}}
+@media (max-width:640px){.vt{display:none !important}}
+.slowbar{transform-origin:left;animation:slow 8s linear infinite}
+@keyframes slow{0%{transform:scaleX(0)}94%{transform:scaleX(.4);opacity:1}100%{transform:scaleX(.4);opacity:0}}
+.fastbar{transform-origin:left;animation:fast 8s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes fast{0%{transform:scaleX(0)}8%,94%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+.chip-in{opacity:0;animation:chipin 8s ease infinite}
+@keyframes chipin{0%{opacity:0;transform:translateY(6px)}5%,92%{opacity:1;transform:none}100%{opacity:0}}
+.done{opacity:0;animation:done 8s ease infinite}
+@keyframes done{0%,9%{opacity:0;transform:scale(.9)}13%{opacity:1;transform:scale(1.06)}16%,92%{opacity:1;transform:none}100%{opacity:0}}
+.spin{animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}.count{--sq:var(--t)}.chip-in,.done,.bub,.late,.swapA{opacity:1}.chk{transform:none}.swapB{opacity:0}.slowbar{transform:scaleX(.4)}.vx{transform:none}.row-in{opacity:1}.draw9{stroke-dashoffset:0}.draw,.sketch-clean{stroke-dashoffset:0}.shape,.mail,.fill-in,.fade-label,.toast{opacity:1}.shape.d1,.shape.d2,.mail.m1,.mail.m2{opacity:0}}
+</style>
+<style>/* ---- Apex site motion layer (Webflow-style) ---- */
+html{scroll-behavior:smooth;background:#FFFFFF;color-scheme:light}
+body{background:#FFFFFF;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+header{top:env(safe-area-inset-top,0px)!important;transition:box-shadow .35s ease,background-color .35s ease}
+header.scrolled{box-shadow:0 10px 30px -18px rgba(14,23,38,.25);background-color:rgba(255,255,255,.94)!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:#FFFFFF}
+
+/* page enter / leave */
+.page{animation:pageIn .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.leaving .page{opacity:0;transform:translateY(-6px);transition:opacity .28s ease,transform .28s ease}
+
+/* scroll reveal (applied only to content below the first screen) */
+.rv{opacity:0;transform:translateY(28px);filter:blur(4px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s ease;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+
+/* hero headline word rise */
+.w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wordUp .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes wordUp{to{opacity:1;transform:none}}
+
+/* interactions */
+a,button{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease,background-color .25s ease,color .2s ease,border-color .25s ease,opacity .2s ease}
+a[style*="border-radius: 999px"]:hover,button[style*="border-radius: 999px"]:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(14,23,38,.35)}
+a[style*="border-radius: 999px"]:active,button:active{transform:translateY(0) scale(.98)}
+nav a:not([style*="border-radius"]){position:relative}
+nav a:not([style*="border-radius"])::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:#0E1726;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+nav a:not([style*="border-radius"]):hover::after,nav a[aria-current="page"]::after{transform:scaleX(1)}
+footer a{opacity:.85}footer a:hover{opacity:1}
+.lift{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,border-color .3s ease}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -28px rgba(14,23,38,.28)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #3F5B7A;outline-offset:3px}
+
+/* swapped panels fade in */
+.swap-in{animation:swapIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes swapIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .page,.w,.swap-in{animation:none!important;opacity:1!important;transform:none!important}
+  .rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+  .lift:hover,a:hover,button:hover{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #111827; background: #FFFFFF; overflow-x: hidden">
+
+
+<header style="position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); border-bottom: 1px solid #ECEEF2">
+<nav aria-label="Main" style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<a href="index.html" style="display: flex; align-items: center; gap: 14px">
+<span style="font-weight: 700; font-size: 21px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<span style="width: 1px; height: 18px; background: #D9DDE3"></span>
+<span style="font-size: 13px; font-weight: 500; color: #3F4858">Instant Countertop Quotes</span>
+</a>
+<div style="display: flex; gap: 28px; font-size: 14px; font-weight: 500; flex-wrap: wrap">
+<a href="platform.html" style="color: #6B7280">Platform</a>
+<a href="security.html" style="color: #6B7280">Security</a>
+<a href="pricing.html" style="color: #6B7280">Pricing</a>
+<a href="about.html" style="color: #6B7280">About</a>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="https://ctop-quote.vercel.app/" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: rgba(255,255,255,0.85); color: #0E1726">Live demo</a>
+<a href="contact.html" style="font-size: 14px; font-weight: 600; padding: 11px 18px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Book a demo</a>
+</div>
+</nav>
+</header>
+
+
+<section data-sec="0" id="top" style="position: relative; padding: 88px 24px 96px; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -260px; right: -220px; width: 900px; height: 760px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none"></div>
+<div aria-hidden="true" style="position: absolute; bottom: -300px; left: -260px; width: 700px; height: 600px; background: radial-gradient(closest-side, rgba(236,238,242,0.9), transparent); pointer-events: none"></div>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: center">
+
+<div style="flex: 1 1 440px; display: flex; flex-direction: column; gap: 26px; min-width: 0">
+<div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF; font-size: 13px; font-weight: 500; color: #3F4858">
+<span style="padding: 3px 8px; border-radius: 999px; background: #3F5B7A; color: #FFFFFF; font-size: 11px; font-weight: 600">NEW</span>
+Quoting software for stone fabricators
+</div>
+<h1 style="margin: 0; font-size: clamp(44px, 6.2vw, 76px); line-height: 1.0; letter-spacing: -0.05em; font-weight: 700; color: #0E1726">Countertop quotes in minutes<span style="color: #3F5B7A">.</span></h1>
+<p style="margin: 0; font-size: clamp(17px, 1.6vw, 19px); line-height: 1.6; color: #6B7280; max-width: 520px">Apex turns a homeowner's room measurements into a priced estimate, right on your website. Guided steps, a full stone catalog, and your pricing rules kept safely on the server.</p>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<a href="contact.html" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; background: #0E1726; color: #FFFFFF; display: flex; align-items: center; gap: 8px">Get Apex for your shop
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 8 H13 M9 4 L13 8 L9 12"></path></svg>
+</a>
+<a href="https://ctop-quote.vercel.app/" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF; color: #0E1726">Try the live demo</a>
+</div>
+<div style="display: flex; gap: 22px; flex-wrap: wrap; font-size: 13px; font-weight: 500; color: #6B7280; padding-top: 6px">
+<span style="display: flex; align-items: center; gap: 7px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>700+ stones</span>
+<span style="display: flex; align-items: center; gap: 7px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Any layout</span>
+<span style="display: flex; align-items: center; gap: 7px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Embeds on your site</span>
+</div>
+</div>
+
+
+<div style="flex: 1 1 480px; position: relative; min-width: 0; padding: 20px 0">
+<div style="border: 1px solid #ECEEF2; border-radius: 22px; background: rgba(255,255,255,0.92); box-shadow: 0 30px 80px -30px rgba(14,23,38,0.22), 0 2px 6px rgba(14,23,38,0.04); overflow: hidden">
+<div style="height: 3px; background: #ECEEF2"><div class="bar" style="height: 3px; width: 100%; background: #3F5B7A"></div></div>
+<div style="padding: 22px 26px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<span style="font-weight: 700; font-size: 16px; letter-spacing: -0.03em">Countertops</span>
+<span style="font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid #ECEEF2">Step 3 of 8</span>
+</div>
+<div style="padding: 18px 26px 0">
+<div style="font-size: 30px; font-weight: 700; letter-spacing: -0.045em; color: #0E1726">Enter your dimensions.</div>
+<div style="font-size: 14px; color: #6B7280; margin-top: 6px">Kitchen · L-shape</div>
+</div>
+<div style="margin: 18px 26px 0; border: 1px solid #ECEEF2; border-radius: 16px; background: #F9FAFB; padding: 14px">
+<svg viewBox="0 0 440 230" width="100%" role="img" aria-label="An L-shaped countertop outline being measured">
+<defs><pattern id="hg" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0 H0 V16" fill="none" stroke="#ECEEF2" stroke-width="1"></path></pattern></defs>
+<rect width="440" height="230" rx="10" fill="url(#hg)"></rect>
+<path class="fill-in" d="M60 40 H380 V100 H150 V196 H60 Z" fill="rgba(63,91,122,0.10)"></path>
+<path class="draw" pathLength="1" d="M60 40 H380 V100 H150 V196 H60 Z" fill="none" stroke="#3F5B7A" stroke-width="2.5" stroke-linejoin="round"></path>
+<circle class="pop" cx="60" cy="40" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: 0s"></circle>
+<circle class="pop" cx="380" cy="40" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: .35s"></circle>
+<circle class="pop" cx="380" cy="100" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: .7s"></circle>
+<circle class="pop" cx="150" cy="100" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: 1.05s"></circle>
+<circle class="pop" cx="150" cy="196" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: 1.4s"></circle>
+<circle class="pop" cx="60" cy="196" r="5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.5" style="animation-delay: 1.75s"></circle>
+<g class="fade-label" font-family="JetBrains Mono, monospace" font-size="12" fill="#3F4858">
+<text x="220" y="28" text-anchor="middle">132″</text>
+<text x="394" y="74">25.5″</text>
+<text x="46" y="122" text-anchor="end">96″</text>
+<text x="105" y="214" text-anchor="middle">25.5″</text>
+</g>
+<g class="fade-label" style="animation-delay: .3s">
+<rect x="230" y="56" width="80" height="30" rx="7" fill="#FFFFFF" stroke="#D9DDE3" stroke-dasharray="4 4"></rect>
+<text x="270" y="75" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="11" fill="#6B7280">Sink</text>
+</g>
+</svg>
+</div>
+<div style="padding: 18px 26px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+<div style="font-size: 13px; color: #6B7280">Area <span style="font-family: 'JetBrains Mono', monospace; color: #0E1726; font-weight: 500; margin-left: 6px">35.86 sq ft</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span style="font-size: 14px; color: #6B7280">Back</span><span style="font-size: 14px; font-weight: 600; padding: 10px 20px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Continue</span></div>
+</div>
+</div>
+
+
+<div class="float" style="position: absolute; top: -6px; right: -12px; display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; box-shadow: 0 14px 34px -14px rgba(14,23,38,0.25)">
+<span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #EFF1F3 0%, #D0D5DC 40%, #F4F5F6 55%, #C1C7CF 100%)"></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 12px; color: #6B7280">Stone</span><span style="font-size: 13px; font-weight: 600">Quartz · Calacatta</span></span>
+</div>
+<div class="toast" style="position: absolute; bottom: -8px; left: -16px; display: flex; align-items: center; gap: 12px; padding: 12px 16px 12px 12px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; box-shadow: 0 18px 40px -16px rgba(14,23,38,0.3)">
+<span style="width: 32px; height: 32px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 600">Quote sent to customer</span><span style="font-size: 12px; color: #6B7280">and a new lead for your team</span></span>
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="1" id="platform" style="padding: 40px 24px 120px; background: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">THE PLATFORM</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Built for how stone shops actually sell.</h2>
+</div>
+<p style="margin: 0; max-width: 400px; color: #6B7280; font-size: 17px; line-height: 1.6">Every question you'd ask on a site visit, turned into a flow a homeowner can finish from their couch.</p>
+</div>
+
+<div class="bento">
+
+
+<div class="s4" style="border: 1px solid #ECEEF2; border-radius: 22px; background: linear-gradient(160deg, #FFFFFF 40%, #F3F5F8); padding: 32px; display: flex; flex-direction: column; gap: 24px; min-height: 320px; overflow: hidden">
+<div style="flex: none; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 700; letter-spacing: -0.035em">Any layout, measured exactly.</div>
+<p style="margin: 0; color: #6B7280; font-size: 15px; line-height: 1.6">Straight runs, L's, U's, islands, or a fully custom outline. Apex calculates the true area of any polygon with the shoelace formula, so odd angles and notches get priced like you'd price them by hand.</p>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px">
+<span style="font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF">Straight</span>
+<span style="font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF">L-shape</span>
+<span style="font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF">U-shape</span>
+<span style="font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid #ECEEF2; background: #FFFFFF">Custom</span>
+</div>
+</div>
+<div role="img" aria-label="Apex measuring an L-shape, U-shape and angled island, computing each area from its vertices" style="flex: none; position: relative; height: 330px; border: 1px solid #ECEEF2; border-radius: 18px; background-color: #FFFFFF; background-image: linear-gradient(#F3F4F6 1px, transparent 1px), linear-gradient(90deg, #F3F4F6 1px, transparent 1px); background-size: 20px 20px; overflow: hidden">
+
+
+<div class="shape" aria-hidden="true" style="position: absolute; inset: 0; display: flex">
+<div style="flex: 1 1 auto; min-width: 0; position: relative">
+<div style="position: absolute; top: 16px; left: 18px; display: flex; gap: 8px; align-items: center"><span style="font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #0E1726; color: #FFFFFF">L-shape</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">6 vertices</span></div>
+<svg viewBox="0 0 300 210" width="100%" height="100%" style="display: block; box-sizing: border-box; padding: 54px 24px 22px">
+<path d="M45 30 H256 V71 H86 V184 H45 Z" fill="rgba(63,91,122,0.10)"></path>
+<path class="draw9" pathLength="1" d="M45 30 H256 V71 H86 V184 H45 Z" fill="none" stroke="#3F5B7A" stroke-width="2.5" stroke-linejoin="round"></path>
+<g font-family="JetBrains Mono, monospace" font-size="10" fill="#3F4858"><text x="150" y="21" text-anchor="middle">132″</text><text x="264" y="54">25.5″</text><text x="37" y="111" text-anchor="end">96″</text></g>
+<circle class="vx" cx="45" cy="30" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.1s"></circle>
+<circle class="vx" cx="256" cy="30" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.25s"></circle>
+<circle class="vx" cx="256" cy="71" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.4s"></circle>
+<circle class="vx" cx="86" cy="71" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.55s"></circle>
+<circle class="vx" cx="86" cy="184" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.7s"></circle>
+<circle class="vx" cx="45" cy="184" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 0.85s"></circle>
+</svg>
+</div>
+<div class="vt" style="flex: none; width: 220px; padding: 18px 20px; border-left: 1px solid #ECEEF2; background: rgba(255,255,255,0.94); display: flex; flex-direction: column; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0E1726">
+<div style="font-size: 10px; letter-spacing: 0.08em; color: #6B7280; margin-bottom: 6px">VERTICES (IN)</div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.1s"><span style="color: #6B7280">v0</span><span>(0, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.25s"><span style="color: #6B7280">v1</span><span>(132, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.4s"><span style="color: #6B7280">v2</span><span>(132, 25.5)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.55s"><span style="color: #6B7280">v3</span><span>(25.5, 25.5)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.7s"><span style="color: #6B7280">v4</span><span>(25.5, 96)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 0.85s"><span style="color: #6B7280">v5</span><span>(0, 96)</span></div>
+<div style="margin-top: auto; padding-top: 10px; border-top: 1px dashed #D9DDE3; font-size: 11px; color: #6B7280">½·|Σ xᵢyᵢ₊₁ − xᵢ₊₁yᵢ|</div>
+<div style="font-size: 11px; color: #3F4858">= 5,163.75 in² ÷ 144</div>
+<div style="display: flex; align-items: baseline; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif; margin-top: 2px"><span style="font-size: 36px; font-weight: 700; letter-spacing: -0.045em; color: #0E1726"><span class="count t35"></span>.86</span><span style="font-size: 13px; font-weight: 500; color: #6B7280">sq ft</span></div>
+</div>
+</div>
+
+
+<div class="shape d1" aria-hidden="true" style="position: absolute; inset: 0; display: flex">
+<div style="flex: 1 1 auto; min-width: 0; position: relative">
+<div style="position: absolute; top: 16px; left: 18px; display: flex; gap: 8px; align-items: center"><span style="font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #0E1726; color: #FFFFFF">U-shape</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">8 vertices</span></div>
+<svg viewBox="0 0 300 210" width="100%" height="100%" style="display: block; box-sizing: border-box; padding: 54px 24px 22px">
+<path d="M54 34 H246 V168 H205 V75 H95 V168 H54 Z" fill="rgba(63,91,122,0.10)"></path>
+<path class="draw9 d1" pathLength="1" d="M54 34 H246 V168 H205 V75 H95 V168 H54 Z" fill="none" stroke="#3F5B7A" stroke-width="2.5" stroke-linejoin="round"></path>
+<g font-family="JetBrains Mono, monospace" font-size="10" fill="#3F4858"><text x="150" y="25" text-anchor="middle">120″</text><text x="254" y="105">84″</text><text x="225" y="184" text-anchor="middle">25.5″</text></g>
+<circle class="vx" cx="54" cy="34" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.1s"></circle>
+<circle class="vx" cx="246" cy="34" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.22s"></circle>
+<circle class="vx" cx="246" cy="168" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.34s"></circle>
+<circle class="vx" cx="205" cy="168" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.46s"></circle>
+<circle class="vx" cx="205" cy="75" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.58s"></circle>
+<circle class="vx" cx="95" cy="75" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.7s"></circle>
+<circle class="vx" cx="95" cy="168" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.82s"></circle>
+<circle class="vx" cx="54" cy="168" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 3.94s"></circle>
+</svg>
+</div>
+<div class="vt" style="flex: none; width: 220px; padding: 18px 20px; border-left: 1px solid #ECEEF2; background: rgba(255,255,255,0.94); display: flex; flex-direction: column; gap: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0E1726">
+<div style="font-size: 10px; letter-spacing: 0.08em; color: #6B7280; margin-bottom: 4px">VERTICES (IN)</div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.1s"><span style="color: #6B7280">v0</span><span>(0, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.22s"><span style="color: #6B7280">v1</span><span>(120, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.34s"><span style="color: #6B7280">v2</span><span>(120, 84)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.46s"><span style="color: #6B7280">v3</span><span>(94.5, 84)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.58s"><span style="color: #6B7280">v4</span><span>(94.5, 25.5)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.7s"><span style="color: #6B7280">v5</span><span>(25.5, 25.5)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.82s"><span style="color: #6B7280">v6</span><span>(25.5, 84)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 3.94s"><span style="color: #6B7280">v7</span><span>(0, 84)</span></div>
+<div style="margin-top: auto; padding-top: 8px; border-top: 1px dashed #D9DDE3; font-size: 11px; color: #3F4858">= 6,043.50 in² ÷ 144</div>
+<div style="display: flex; align-items: baseline; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif"><span style="font-size: 36px; font-weight: 700; letter-spacing: -0.045em; color: #0E1726"><span class="count t41 d1"></span>.97</span><span style="font-size: 13px; font-weight: 500; color: #6B7280">sq ft</span></div>
+</div>
+</div>
+
+
+<div class="shape d2" aria-hidden="true" style="position: absolute; inset: 0; display: flex">
+<div style="flex: 1 1 auto; min-width: 0; position: relative">
+<div style="position: absolute; top: 16px; left: 18px; display: flex; gap: 8px; align-items: center"><span style="font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Angled island</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">6 vertices · 45° clips</span></div>
+<svg viewBox="0 0 300 210" width="100%" height="100%" style="display: block; box-sizing: border-box; padding: 54px 24px 22px">
+<path d="M78 63 H246 V123 L222 147 H54 V87 Z" fill="rgba(63,91,122,0.10)"></path>
+<path class="draw9 d2" pathLength="1" d="M78 63 H246 V123 L222 147 H54 V87 Z" fill="none" stroke="#3F5B7A" stroke-width="2.5" stroke-linejoin="round"></path>
+<g font-family="JetBrains Mono, monospace" font-size="10" fill="#3F4858"><text x="150" y="53" text-anchor="middle">96″</text><text x="254" y="98">42″</text><text x="40" y="70" text-anchor="end">12″</text></g>
+<circle class="vx" cx="78" cy="63" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.1s"></circle>
+<circle class="vx" cx="246" cy="63" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.25s"></circle>
+<circle class="vx" cx="246" cy="123" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.4s"></circle>
+<circle class="vx" cx="222" cy="147" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.55s"></circle>
+<circle class="vx" cx="54" cy="147" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.7s"></circle>
+<circle class="vx" cx="54" cy="87" r="4.5" fill="#FFFFFF" stroke="#3F5B7A" stroke-width="2.2" style="animation-delay: 6.85s"></circle>
+</svg>
+</div>
+<div class="vt" style="flex: none; width: 220px; padding: 18px 20px; border-left: 1px solid #ECEEF2; background: rgba(255,255,255,0.94); display: flex; flex-direction: column; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0E1726">
+<div style="font-size: 10px; letter-spacing: 0.08em; color: #6B7280; margin-bottom: 6px">VERTICES (IN)</div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.1s"><span style="color: #6B7280">v0</span><span>(12, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.25s"><span style="color: #6B7280">v1</span><span>(96, 0)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.4s"><span style="color: #6B7280">v2</span><span>(96, 30)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.55s"><span style="color: #6B7280">v3</span><span>(84, 42)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.7s"><span style="color: #6B7280">v4</span><span>(0, 42)</span></div>
+<div class="row-in" style="display: flex; justify-content: space-between; animation-delay: 6.85s"><span style="color: #6B7280">v5</span><span>(0, 12)</span></div>
+<div style="margin-top: auto; padding-top: 10px; border-top: 1px dashed #D9DDE3; font-size: 11px; color: #6B7280">½·|Σ xᵢyᵢ₊₁ − xᵢ₊₁yᵢ|</div>
+<div style="font-size: 11px; color: #3F4858">= 3,888.00 in² ÷ 144</div>
+<div style="display: flex; align-items: baseline; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif; margin-top: 2px"><span style="font-size: 36px; font-weight: 700; letter-spacing: -0.045em; color: #0E1726"><span class="count t27 d2"></span>.00</span><span style="font-size: 13px; font-weight: 500; color: #6B7280">sq ft</span></div>
+</div>
+</div>
+
+</div>
+</div>
+
+
+<div class="s2" style="border: 1px solid #ECEEF2; border-radius: 22px; background: #0E1726; color: #FFFFFF; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; min-height: 320px">
+<div>
+<div style="font-size: 56px; font-weight: 700; letter-spacing: -0.06em; line-height: 1">8</div>
+<div style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; margin-top: 8px">guided steps.</div>
+<p style="margin: 10px 0 0; color: #B7C0CC; font-size: 14px; line-height: 1.6">Room, shape, size, edge, cutouts, tear-out, stone, quote.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 4px; border-radius: 4px; background: rgba(255,255,255,0.14); overflow: hidden"><div class="progress" style="height: 4px; background: #FFFFFF; border-radius: 4px"></div></div>
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B7C0CC"><span>Room</span><span>Quote</span></div>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; padding: 30px 0; display: flex; flex-direction: column; gap: 22px; overflow: hidden; min-height: 300px">
+<div style="padding: 0 30px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em">700+ stones, ready to quote.</div>
+<p style="margin: 8px 0 0; color: #6B7280; font-size: 15px; line-height: 1.6">Granite, quartz, marble and more, sorted by color and price tier.</p>
+</div>
+<div style="overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)">
+<div class="marquee">
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(135deg, #F4F5F6 0%, #D9DDE3 30%, #F6F7F9 48%, #C4CAD3 52%, #EFF1F3 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Calacatta</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 30% 30%, #2B2D30, #111214 70%)"></div>
+<div style="font-size: 12px; font-weight: 600">Absolute Black</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(160deg, #EEEDEA 0%, #D8D5CF 40%, #EEF0F2 60%, #A9A49B 64%, #E5E7EB 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">River White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(120deg, #F1F2F3 0%, #DADCE0 35%, #F4F5F6 50%, #C6C9CE 55%, #EEEFF1 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Carrara</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Marble</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 70% 40%, #6A6E73, #3E4246 75%)"></div>
+<div style="font-size: 12px; font-weight: 600">Steel Grey</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(140deg, #DFE2E6 0%, #C0C6D0 40%, #E6E9ED 55%, #ABB3C0 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Silver Cloud</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartzite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(135deg, #B9B8B4, #9E9D99 50%, #B4B3AF)"></div>
+<div style="font-size: 12px; font-weight: 600">Concrete</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 40% 60%, #949EAE, #5B6779 80%)"></div>
+<div style="font-size: 12px; font-weight: 600">Viscount White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(130deg, #17181A 0%, #2A2B2E 45%, #D9D9D9 47%, #1E1F21 50%, #141516 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Nero Marquina</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Marble</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: #F8F8F7"></div>
+<div style="font-size: 12px; font-weight: 600">Pure White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 30% 70%, #4B5A6C, #1E2631 80%)"></div>
+<div style="font-size: 12px; font-weight: 600">Blue Pearl</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(150deg, #4A4F4C, #353936 60%, #5A5F5B)"></div>
+<div style="font-size: 12px; font-weight: 600">Soapstone</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Natural</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(135deg, #F4F5F6 0%, #D9DDE3 30%, #F6F7F9 48%, #C4CAD3 52%, #EFF1F3 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Calacatta</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 30% 30%, #2B2D30, #111214 70%)"></div>
+<div style="font-size: 12px; font-weight: 600">Absolute Black</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(160deg, #EEEDEA 0%, #D8D5CF 40%, #EEF0F2 60%, #A9A49B 64%, #E5E7EB 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">River White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(120deg, #F1F2F3 0%, #DADCE0 35%, #F4F5F6 50%, #C6C9CE 55%, #EEEFF1 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Carrara</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Marble</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 70% 40%, #6A6E73, #3E4246 75%)"></div>
+<div style="font-size: 12px; font-weight: 600">Steel Grey</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(140deg, #DFE2E6 0%, #C0C6D0 40%, #E6E9ED 55%, #ABB3C0 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Silver Cloud</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartzite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(135deg, #B9B8B4, #9E9D99 50%, #B4B3AF)"></div>
+<div style="font-size: 12px; font-weight: 600">Concrete</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 40% 60%, #949EAE, #5B6779 80%)"></div>
+<div style="font-size: 12px; font-weight: 600">Viscount White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(130deg, #17181A 0%, #2A2B2E 45%, #D9D9D9 47%, #1E1F21 50%, #141516 100%)"></div>
+<div style="font-size: 12px; font-weight: 600">Nero Marquina</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Marble</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: #F8F8F7"></div>
+<div style="font-size: 12px; font-weight: 600">Pure White</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Quartz</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: radial-gradient(circle at 30% 70%, #4B5A6C, #1E2631 80%)"></div>
+<div style="font-size: 12px; font-weight: 600">Blue Pearl</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Granite</div>
+</div>
+
+<div style="flex: none; width: 128px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 96px; border-radius: 14px; border: 1px solid #ECEEF2; background: linear-gradient(150deg, #4A4F4C, #353936 60%, #5A5F5B)"></div>
+<div style="font-size: 12px; font-weight: 600">Soapstone</div>
+<div style="font-size: 11px; color: #6B7280; margin-top: -6px">Natural</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+<div class="s3" style="border: 1px solid #ECEEF2; border-radius: 22px; background: linear-gradient(200deg, #F3F5F8, #FFFFFF 55%); padding: 30px; display: flex; flex-direction: column; gap: 22px; min-height: 300px">
+<div>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em">Your pricing stays private.</div>
+<p style="margin: 8px 0 0; color: #6B7280; font-size: 15px; line-height: 1.6">Every calculation runs on the server. Customers see a number, never the rules behind it.</p>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; margin-top: auto">
+<div style="flex: none; width: 92px; padding: 14px 10px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; text-align: center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M3 8h18"></path></svg>
+<div style="font-size: 12px; font-weight: 600; margin-top: 6px">Browser</div>
+</div>
+<div style="flex: 1; position: relative; height: 10px">
+<div style="position: absolute; top: 4px; left: 0; right: 0; border-top: 2px dashed #D9DDE3"></div>
+<div class="packet" style="position: absolute; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #3F5B7A"></div>
+<div class="packet back" style="position: absolute; top: 0; width: 10px; height: 10px; border-radius: 3px; background: #0E1726"></div>
+</div>
+<div style="flex: none; width: 92px; padding: 14px 10px; border: 1px solid #0E1726; border-radius: 14px; background: #0E1726; color: #FFFFFF; text-align: center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+<div style="font-size: 12px; font-weight: 600; margin-top: 6px">Server</div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280; flex-wrap: wrap"><span>→ shape, sq ft, stone</span><span>← estimate only</span></div>
+</div>
+
+
+<div class="s2" style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; padding: 30px; display: flex; flex-direction: column; gap: 20px; min-height: 300px">
+<div>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em">Instant quote emails.</div>
+<p style="margin: 8px 0 0; color: #6B7280; font-size: 15px; line-height: 1.6">The customer gets their estimate. You get the lead.</p>
+</div>
+<div style="position: relative; height: 92px; margin-top: auto">
+
+<div class="mail" style="position: absolute; inset: 0; display: flex; gap: 12px; align-items: center; padding: 14px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; box-shadow: 0 12px 30px -16px rgba(14,23,38,0.25)">
+<span style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #F3F4F6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3F5B7A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg></span>
+<span style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 13px; font-weight: 600">Your countertop estimate</span><span style="font-size: 12px; color: #6B7280">Sent to the homeowner</span></span>
+</div>
+
+<div class="mail m1" style="position: absolute; inset: 0; display: flex; gap: 12px; align-items: center; padding: 14px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; box-shadow: 0 12px 30px -16px rgba(14,23,38,0.25)">
+<span style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #F3F4F6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3F5B7A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg></span>
+<span style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 13px; font-weight: 600">New lead · Kitchen, L-shape</span><span style="font-size: 12px; color: #6B7280">Sent to your sales inbox</span></span>
+</div>
+
+<div class="mail m2" style="position: absolute; inset: 0; display: flex; gap: 12px; align-items: center; padding: 14px; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; box-shadow: 0 12px 30px -16px rgba(14,23,38,0.25)">
+<span style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #F3F4F6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3F5B7A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg></span>
+<span style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 13px; font-weight: 600">Quote details attached</span><span style="font-size: 12px; color: #6B7280">Shape, stone, edge, cutouts</span></span>
+</div>
+
+</div>
+</div>
+
+
+<div class="s2" style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; padding: 30px; display: flex; flex-direction: column; gap: 20px; min-height: 300px">
+<div>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em">Sketch to layout.</div>
+<p style="margin: 8px 0 0; color: #6B7280; font-size: 15px; line-height: 1.6">Upload a hand sketch and AI pulls out the outline for you.</p>
+</div>
+<div style="position: relative; margin-top: auto; height: 150px; border: 1px solid #ECEEF2; border-radius: 14px; background: #F8F9FA; overflow: hidden">
+<svg viewBox="0 0 260 150" width="100%" height="100%" aria-hidden="true">
+<path d="M42 32 C90 27, 160 35, 214 30 C218 52, 212 62, 216 74 C170 77, 128 70, 98 76 C101 98, 94 112, 99 124 C78 122, 58 126, 40 121 C44 92, 37 60, 42 32 Z" fill="none" stroke="#9CA3AF" stroke-width="1.6" stroke-linecap="round"></path>
+<path class="sketch-clean" pathLength="1" d="M42 31 H214 V74 H99 V123 H42 Z" fill="none" stroke="#3F5B7A" stroke-width="2.4" stroke-linejoin="round"></path>
+</svg>
+<div class="scan" style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #3F5B7A, transparent)"></div>
+</div>
+</div>
+
+
+<div class="s2" style="border: 1px solid #ECEEF2; border-radius: 22px; background: linear-gradient(160deg, #F3F5F8, #FFFFFF 60%); padding: 30px; display: flex; flex-direction: column; gap: 20px; min-height: 300px">
+<div>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em">Lives on your site.</div>
+<p style="margin: 8px 0 0; color: #6B7280; font-size: 15px; line-height: 1.6">Embed it on your own domain. Leads come to you, not a marketplace.</p>
+</div>
+<div style="position: relative; margin-top: auto; border: 1px solid #ECEEF2; border-radius: 14px; background: #FFFFFF; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 6px; padding: 9px 12px; border-bottom: 1px solid #ECEEF2">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #E5E7EB"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #E5E7EB"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #E5E7EB"></span>
+<span style="margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7280">yourshop.com</span>
+</div>
+<div style="padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 8px; width: 60%; border-radius: 4px; background: #E5E7EB"></div>
+<div style="height: 8px; width: 40%; border-radius: 4px; background: #F3F4F6"></div>
+<div class="ring" style="align-self: flex-start; margin-top: 6px; font-size: 11px; font-weight: 600; padding: 7px 12px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Get an instant quote</div>
+</div>
+<svg class="cursor" width="18" height="18" viewBox="0 0 18 18" style="position: absolute; right: 22px; bottom: 6px" aria-hidden="true"><path d="M2 2 L15 8 L9 9.5 L7 16 Z" fill="#0E1726" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="2" id="how" style="padding: 110px 24px; background: #F9FAFB; border-top: 1px solid #ECEEF2; border-bottom: 1px solid #ECEEF2">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">TIME SAVED</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Your sales team stops doing math.</h2>
+</div>
+<p style="margin: 0; font-size: 17px; color: #6B7280">Apex does the measuring math. Your team closes.</p>
+</div>
+
+<div role="img" aria-label="By hand, a salesperson juggles pricing spreadsheets, a calculator, a paper sketch and a stream of customer messages. With Apex, the customer builds the quote on their phone and the salesperson receives a ready-to-close lead." style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px">
+
+
+<div aria-hidden="true" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #F6F7F9; padding: 24px; display: flex; flex-direction: column; gap: 18px; overflow: hidden">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; border: 1px solid #ECEEF2; display: flex; align-items: center; justify-content: center"><svg class="spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+<span style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #6B7280">Quoting by hand</span>
+</div>
+<span class="blink" style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: #FFFFFF; border: 1px solid #ECEEF2; color: #6B7280">Still working…</span>
+</div>
+
+<div style="position: relative; height: 380px">
+
+
+<div class="nudge" style="position: absolute; top: 0; left: 0; width: 64%; border: 1px solid #D9DDE3; border-radius: 10px; background: #FFFFFF; box-shadow: 0 10px 24px -14px rgba(14,23,38,0.3); overflow: hidden">
+<div style="display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #2E7D4F; color: #FFFFFF; font-size: 11px; font-weight: 600"><span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.3)"></span>Stone_Pricing_v7_FINAL.xlsx</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #3F4858">
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #F7F8F9; font-weight: 600">Stone</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #F7F8F9; font-weight: 600">Tier</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #F7F8F9; font-weight: 600">$/sqft</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #F7F8F9; font-weight: 600">Notes</span>
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3">Calacatta</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">3</span><span class="blink" style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #EAF0F7">??</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">ask Jim</span>
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3">River White</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">1</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">—</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">old</span>
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3">Carrara</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">2</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">—</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">#REF!</span>
+</div>
+</div>
+
+
+<div class="nudge n2" style="position: absolute; top: 108px; left: 14%; width: 58%; border: 1px solid #D9DDE3; border-radius: 10px; background: #FFFFFF; box-shadow: 0 12px 28px -14px rgba(14,23,38,0.35); overflow: hidden">
+<div style="display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: #2E7D4F; color: #FFFFFF; font-size: 11px; font-weight: 600"><span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.3)"></span>Edge_Rates (copy).xlsx</div>
+<div style="padding: 6px 10px; border-bottom: 1px solid #F0F1F3; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #3F4858">fx <span class="blink">=VLOOKUP(B4,Edges!A:C,3)*1.35</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #3F4858">
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3">Eased</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">per ft</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3; background: #FDE8E8; color: #B42318">#N/A</span>
+<span style="padding: 5px 7px; border: 1px solid #F0F1F3">Ogee</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">per ft</span><span style="padding: 5px 7px; border: 1px solid #F0F1F3">—</span>
+</div>
+</div>
+
+
+<div class="nudge n3" style="position: absolute; bottom: 8px; left: 0; width: 120px; border-radius: 14px; background: #2B2F36; padding: 10px; box-shadow: 0 12px 26px -12px rgba(14,23,38,0.5)">
+<div style="position: relative; height: 26px; border-radius: 6px; background: #C9D3C2; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1F2A1A; text-align: right; padding: 5px 7px; box-sizing: border-box; overflow: hidden">
+<span class="swapA" style="position: absolute; right: 7px; top: 5px">132 × 25.5</span><span class="swapB" style="position: absolute; right: 7px; top: 5px">3366 ÷ 144</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 8px">
+<span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #5B6B7F"></span>
+<span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #4A505A"></span><span style="height: 12px; border-radius: 3px; background: #5B6B7F"></span>
+</div>
+</div>
+
+
+<div style="position: absolute; bottom: 0; left: 132px; width: 150px; height: 112px; background: #F8F8F9; border: 1px solid #D9DDE3; border-radius: 4px; transform: rotate(-4deg); box-shadow: 0 10px 22px -14px rgba(14,23,38,0.35); background-image: repeating-linear-gradient(#F8F8F9 0 15px, #E9EEF5 15px 16px)">
+<svg viewBox="0 0 150 112" width="100%" height="100%"><path d="M22 22 C60 18, 100 24, 128 20 C130 34, 126 40, 129 48 C100 50, 76 46, 56 50 C58 68, 54 80, 57 92 C44 90, 32 94, 21 90 C24 70, 19 44, 22 22 Z" fill="none" stroke="#3B4A6B" stroke-width="1.6" stroke-linecap="round"></path><text x="75" y="15" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="9" fill="#3B4A6B">132?</text><text x="10" y="60" font-family="Comic Sans MS, cursive" font-size="9" fill="#3B4A6B" transform="rotate(-90 12 60)">96</text></svg>
+</div>
+
+
+<div style="position: absolute; top: 6px; right: 0; width: 44%; display: flex; flex-direction: column; gap: 8px; align-items: flex-end">
+<div class="bub" style="max-width: 100%; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 14px 14px 4px 14px; background: #FFFFFF; border: 1px solid #ECEEF2; color: #111827; box-shadow: 0 6px 16px -10px rgba(14,23,38,0.3); animation-delay: 0.4s">Hi! Any update on my quote?</div>
+<div class="bub" style="max-width: 100%; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 14px 14px 4px 14px; background: #FFFFFF; border: 1px solid #ECEEF2; color: #111827; box-shadow: 0 6px 16px -10px rgba(14,23,38,0.3); animation-delay: 1.6s">Can I see quartz instead?</div>
+<div class="bub" style="max-width: 100%; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 14px 14px 4px 14px; background: #FFFFFF; border: 1px solid #ECEEF2; color: #111827; box-shadow: 0 6px 16px -10px rgba(14,23,38,0.3); animation-delay: 2.8s">What about a bevel edge?</div>
+<div class="bub" style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 8px 12px; border-radius: 12px; background: #FDE8E8; color: #B42318; animation-delay: 4s"><svg class="shake" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"></path></svg>Missed call (3)</div>
+<div class="bub" style="max-width: 100%; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 14px 14px 4px 14px; background: #FFFFFF; border: 1px solid #ECEEF2; color: #6B7280; box-shadow: 0 6px 16px -10px rgba(14,23,38,0.3); animation-delay: 5.2s">Never mind, went with someone else.</div>
+</div>
+
+</div>
+</div>
+
+
+<div aria-hidden="true" style="position: relative; border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; box-shadow: 0 24px 60px -34px rgba(14,23,38,0.25)">
+<div style="position: absolute; top: -180px; right: -160px; width: 460px; height: 420px; background: radial-gradient(closest-side, rgba(218,228,243,0.9), transparent); pointer-events: none"></div>
+<div style="position: relative; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #0E1726; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14 H12 L11 22 L20 10 H12 Z"></path></svg></span>
+<span style="font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">With Apex</span>
+</div>
+<span style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: #3F5B7A; color: #FFFFFF">Automated</span>
+</div>
+
+<div style="position: relative; height: 380px; display: flex; align-items: center; justify-content: space-between; gap: 14px">
+
+
+<div style="flex: none; width: 214px; height: 380px; border-radius: 36px; border: 8px solid #0E1726; background: #F9FAFB; box-sizing: border-box; padding: 34px 14px 16px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; box-shadow: 0 24px 50px -24px rgba(14,23,38,0.4)">
+<div style="position: absolute; top: 8px; left: 50%; width: 64px; height: 16px; margin-left: -32px; border-radius: 10px; background: #0E1726"></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 700; letter-spacing: -0.03em; color: #0E1726">Your quote</span><span style="font-size: 10px; font-weight: 600; color: #6B7280">5 of 5</span></div>
+<div style="height: 4px; border-radius: 4px; background: #ECEEF2; overflow: hidden"><div class="phonebar" style="height: 4px; background: #3F5B7A"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid #ECEEF2; border-radius: 12px; background: #FFFFFF; white-space: nowrap; overflow: hidden"><span class="chk" style="flex: none; width: 18px; height: 18px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center; animation-delay: 0.4s"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span><span style="font-size: 13px; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis">Kitchen</span></div>
+<div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid #ECEEF2; border-radius: 12px; background: #FFFFFF; white-space: nowrap; overflow: hidden"><span class="chk" style="flex: none; width: 18px; height: 18px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center; animation-delay: 0.9s"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span><span style="font-size: 13px; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis">L-shape</span></div>
+<div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid #ECEEF2; border-radius: 12px; background: #FFFFFF; white-space: nowrap; overflow: hidden"><span class="chk" style="flex: none; width: 18px; height: 18px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center; animation-delay: 1.4s"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span><span style="font-size: 13px; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis">35.86 sq ft</span></div>
+<div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid #ECEEF2; border-radius: 12px; background: #FFFFFF; white-space: nowrap; overflow: hidden"><span class="chk" style="flex: none; width: 18px; height: 18px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center; animation-delay: 1.9s"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span><span style="font-size: 13px; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis">Calacatta quartz</span></div>
+<div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid #ECEEF2; border-radius: 12px; background: #FFFFFF; white-space: nowrap; overflow: hidden"><span class="chk" style="flex: none; width: 18px; height: 18px; border-radius: 50%; background: #3F5B7A; display: flex; align-items: center; justify-content: center; animation-delay: 2.4s"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg></span><span style="font-size: 13px; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis">Bevel edge</span></div>
+</div>
+<div class="late" style="margin-top: auto; border-radius: 14px; background: #0E1726; color: #FFFFFF; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #AEB8C5">ESTIMATE</span><span style="font-size: 14px; font-weight: 700; letter-spacing: -0.02em">Ready now</span></span>
+<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8 H13 M9 4 L13 8 L9 12"></path></svg>
+</div>
+</div>
+
+
+<div style="flex: 1 1 auto; min-width: 30px; position: relative; height: 10px">
+<div style="position: absolute; top: 4px; left: 0; right: 0; border-top: 2px dashed #D9DDE3"></div>
+<div class="packet" style="position: absolute; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #3F5B7A"></div>
+</div>
+
+
+<div style="flex: 0 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #6B7280">YOUR SALES INBOX</div>
+<div class="late l2" style="border: 1px solid #ECEEF2; border-radius: 16px; background: #FFFFFF; padding: 14px; box-shadow: 0 16px 36px -18px rgba(14,23,38,0.3); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span class="blink" style="width: 8px; height: 8px; border-radius: 50%; background: #3F5B7A"></span><span style="font-size: 13px; font-weight: 700">New lead</span></div>
+<div style="font-size: 12px; color: #6B7280; line-height: 1.5">Kitchen · L-shape<br>35.86 sq ft · Calacatta<br>Bevel edge · 1 sink</div>
+<div style="font-size: 12px; font-weight: 600; text-align: center; padding: 8px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Ready to close</div>
+</div>
+<div class="late l3" style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #3F4858"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2.4" stroke-linecap="round"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>0 spreadsheets opened</div>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="3" id="security" style="padding: 110px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap; align-items: center">
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 18px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">SECURITY</div>
+<h2 style="margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726">Competitors can't read your margins out of the page source.</h2>
+<p style="margin: 0; color: #6B7280; font-size: 17px; line-height: 1.65">Most quote calculators ship the price table to the browser, where anyone can open dev tools and copy it. Apex keeps cost per square foot, markup, edge rates and install tiers in server functions. The browser only ever receives the final estimate.</p>
+</div>
+<div style="flex: 1 1 420px; border: 1px solid #ECEEF2; border-radius: 20px; background: #FFFFFF; box-shadow: 0 24px 60px -30px rgba(14,23,38,0.2); overflow: hidden">
+<div style="display: flex; gap: 6px; padding: 12px 16px; border-bottom: 1px solid #ECEEF2; font-size: 12px; font-weight: 600">
+<span style="padding: 6px 12px; border-radius: 999px; background: #F3F4F6">Network</span>
+<span style="padding: 6px 12px; color: #6B7280">quote</span>
+</div>
+<div style="padding: 22px 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.95; overflow-x: auto">
+<div style="color: #6B7280">// request</div>
+<div>{ <span style="color: #3F4858">"shape"</span>: <span style="color: #3F5B7A">"L"</span>, <span style="color: #3F4858">"sqft"</span>: <span style="color: #3F5B7A">35.86</span>, <span style="color: #3F4858">"stone"</span>: <span style="color: #3F5B7A">"qz-214"</span> }</div>
+<div style="color: #6B7280; margin-top: 12px">// response</div>
+<div>{ <span style="color: #3F4858">"estimate"</span>: <span style="color: #3F5B7A">[low, high]</span> }</div>
+<div style="color: #6B7280; margin-top: 12px">// stays on the server</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px">
+<span class="blink" style="padding: 3px 10px; border-radius: 7px; background: #F3F4F6; color: #3F4858">costPerSqft</span>
+<span class="blink" style="padding: 3px 10px; border-radius: 7px; background: #F3F4F6; color: #3F4858; animation-delay: .3s">markup</span>
+<span class="blink" style="padding: 3px 10px; border-radius: 7px; background: #F3F4F6; color: #3F4858; animation-delay: .6s">edgeRates</span>
+<span class="blink" style="padding: 3px 10px; border-radius: 7px; background: #F3F4F6; color: #3F4858; animation-delay: .9s">installTiers</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="4" id="pricing" style="padding: 20px 24px 110px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">PRICING</div>
+<h2 style="margin: 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Simple plans for every shop.</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+
+<div style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; color: #111827; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">Starter</span><span style="font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #F3F4F6; color: #3F4858">Solo shops</span></div>
+<div style="font-size: 42px; font-weight: 700; letter-spacing: -0.04em">[$__]<span style="font-size: 15px; color: #6B7280; font-weight: 500"> /mo</span></div>
+<p style="margin: 0; font-size: 15px; color: #6B7280; line-height: 1.55">Everything a single-location shop needs to quote online.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Full 8-step quote flow</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Up to [__] stones</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Quote emails to you and the customer</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Apex-hosted quote page</div>
+
+</div>
+<a href="contact.html" style="margin-top: auto; text-align: center; padding: 13px; border-radius: 999px; font-weight: 600; font-size: 15px; background: #FFFFFF; color: #0E1726; border: 1px solid #ECEEF2">Start with Starter</a>
+</div>
+
+<div style="border: 1px solid #0E1726; border-radius: 22px; background: #0E1726; color: #FFFFFF; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">Pro</span><span style="font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #FFFFFF">Most popular</span></div>
+<div style="font-size: 42px; font-weight: 700; letter-spacing: -0.04em">[$__]<span style="font-size: 15px; color: #AEB8C5; font-weight: 500"> /mo</span></div>
+<p style="margin: 0; font-size: 15px; color: #AEB8C5; line-height: 1.55">For growing fabricators who want Apex on their own site.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Everything in Starter</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Full stone catalog</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Embed on your domain</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Your logo and colors</div>
+
+</div>
+<a href="contact.html" style="margin-top: auto; text-align: center; padding: 13px; border-radius: 999px; font-weight: 600; font-size: 15px; background: #FFFFFF; color: #0E1726; border: 1px solid #FFFFFF">Choose Pro</a>
+</div>
+
+<div style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; color: #111827; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em">Enterprise</span><span style="font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #F3F4F6; color: #3F4858">Multi-location</span></div>
+<div style="font-size: 42px; font-weight: 700; letter-spacing: -0.04em">Custom<span style="font-size: 15px; color: #6B7280; font-weight: 500"> /mo</span></div>
+<p style="margin: 0; font-size: 15px; color: #6B7280; line-height: 1.55">For multi-location shops with custom pricing rules.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Everything in Pro</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Multiple locations</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Custom pricing logic</div>
+
+<div style="display: flex; gap: 10px; align-items: flex-start"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#3F5B7A" stroke-width="2" stroke-linecap="round" style="flex: none; margin-top: 2px" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4.5"></path></svg>Priority onboarding</div>
+
+</div>
+<a href="contact.html" style="margin-top: auto; text-align: center; padding: 13px; border-radius: 999px; font-weight: 600; font-size: 15px; background: #FFFFFF; color: #0E1726; border: 1px solid #ECEEF2">Talk to us</a>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="5" id="cta" style="padding: 0 24px 110px">
+<div style="position: relative; max-width: 1200px; margin: 0 auto; border-radius: 28px; background: #0E1726; color: #FFFFFF; padding: clamp(40px, 6vw, 80px); display: flex; gap: 40px; flex-wrap: wrap; align-items: center; justify-content: space-between; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -200px; right: -160px; width: 600px; height: 500px; background: radial-gradient(closest-side, rgba(63,91,122,0.55), transparent); pointer-events: none"></div>
+<div style="position: relative; flex: 1 1 420px">
+<h2 style="margin: 0; font-size: clamp(34px, 5vw, 56px); letter-spacing: -0.05em; line-height: 1.02; font-weight: 700">Stop losing leads to &quot;we'll get back to you.&quot;</h2>
+<p style="margin: 18px 0 0; font-size: 18px; line-height: 1.6; max-width: 520px; color: #C5CDD8">Give homeowners a real number while they're still excited about their kitchen. We'll set Apex up with your stones and your pricing.</p>
+</div>
+<form style="position: relative; flex: 1 1 340px; display: flex; flex-direction: column; gap: 10px; max-width: 440px">
+<label for="cta-email" style="font-size: 14px; font-weight: 600">Work email</label>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<input id="cta-email" type="email" placeholder="you@yourshop.com" style="flex: 1 1 200px; min-height: 50px; padding: 0 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); font-family: inherit; font-size: 15px; color: #FFFFFF">
+<button type="button" style="min-height: 50px; padding: 0 24px; border-radius: 999px; border: none; background: #FFFFFF; color: #0E1726; font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer">Book a demo</button>
+</div>
+<span style="font-size: 13px; color: #AEB8C5">Or email [hello@yourdomain.com]</span>
+</form>
+</div>
+</section>
+
+
+<footer style="border-top: 1px solid #ECEEF2; padding: 48px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px">
+<span style="font-weight: 700; font-size: 20px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<p style="margin: 0; font-size: 14px; color: #6B7280; line-height: 1.6">Instant, accurate quoting for countertop fabricators.</p>
+</div>
+<div style="display: flex; gap: 64px; flex-wrap: wrap; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">PRODUCT</span><a href="platform.html">Platform</a><a href="pricing.html">Pricing</a><a href="security.html">Security</a><a href="https://ctop-quote.vercel.app/">Live demo</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">COMPANY</span><a href="about.html">About</a><a href="contact.html">Book a demo</a><a href="contact.html">Contact</a></div>
+</div>
+</div>
+<div style="max-width: 1200px; margin: 40px auto 0; font-size: 13px; color: #6B7280">© 2026 Apex. All rights reserved.</div>
+</footer>
+
+</div>
+<script>(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.body.firstElementChild;
+  if (root) root.classList.add('page');
+
+  /* header shadow on scroll */
+  var header = document.querySelector('header');
+  function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* hero headline: words rise in */
+  var h1 = document.querySelector('h1');
+  if (h1 && !reduce) {
+    var i = 0, frag = document.createDocumentFragment();
+    Array.prototype.slice.call(h1.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); s.textContent = part; frag.appendChild(s);
+        });
+      } else if (n.nodeType === 1) {
+        var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w);
+      }
+    });
+    h1.textContent = ''; h1.appendChild(frag);
+    h1.setAttribute('aria-label', h1.textContent);
+  }
+
+  /* hover lift on cards */
+  function markLift(scope) {
+    scope.querySelectorAll('.bento > *, [style*="display: grid"] > [style*="border-radius: 2"]').forEach(function (el) {
+      if (/border: 1px/.test(el.getAttribute('style') || '')) el.classList.add('lift');
+    });
+  }
+  markLift(document);
+
+  /* scroll reveal for content below the first screen */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cands = [];
+    document.querySelectorAll('main, section').forEach(function (sec) {
+      var grids = sec.querySelectorAll('.bento, [style*="display: grid"]');
+      grids.forEach(function (g) { Array.prototype.forEach.call(g.children, function (c, idx) { cands.push([c, Math.min(idx, 6) * 0.08]); }); });
+      sec.querySelectorAll('[style*="max-width: 1200px"]').forEach(function (box) {
+        Array.prototype.forEach.call(box.children, function (c, idx) {
+          if (c.querySelector('.bento, [style*="display: grid"]') || c.matches('.bento, [style*="display: grid"]')) return;
+          cands.push([c, Math.min(idx, 4) * 0.08]);
+        });
+      });
+    });
+    var fold = window.innerHeight * 0.92;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    var seen = new Set();
+    cands.forEach(function (c) {
+      var el = c[0];
+      if (seen.has(el)) return; seen.add(el);
+      if (el.closest('header, footer')) return;
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add('rv'); el.style.setProperty('--d', c[1] + 's'); io.observe(el);
+    });
+  }
+
+  /* page transitions */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
+    var href = a.getAttribute('href');
+    if (!/^[\w-]+\.html(#.*)?$/.test(href)) return;
+    e.preventDefault();
+    if (reduce) { location.href = href; return; }
+    document.body.classList.add('leaving');
+    setTimeout(function () { location.href = href; }, 280);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) document.body.classList.remove('leaving'); });
+
+  /* interactive state: tabs, toggles, FAQ, forms */
+  var D = window.__DYN;
+  if (!D) return;
+  var state = D.state;
+  var tpl = document.createElement('template');
+
+  function keyOf() { return JSON.stringify(D.keys.map(function (k) { return state[k]; })); }
+
+  function morph(oldEl, newEl) {
+    // attributes
+    Array.prototype.slice.call(oldEl.attributes).forEach(function (a) { if (!newEl.hasAttribute(a.name) && a.name !== 'class') oldEl.removeAttribute(a.name); });
+    Array.prototype.slice.call(newEl.attributes).forEach(function (a) {
+      if (a.name === 'class') {
+        var keep = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); });
+        oldEl.setAttribute('class', a.value); keep.forEach(function (c) { oldEl.classList.add(c); });
+      } else if (oldEl.getAttribute(a.name) !== a.value) oldEl.setAttribute(a.name, a.value);
+    });
+    if (!newEl.hasAttribute('class')) { var keep2 = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); }); oldEl.removeAttribute('class'); keep2.forEach(function (c) { oldEl.classList.add(c); }); }
+    var oc = Array.prototype.slice.call(oldEl.childNodes), nc = Array.prototype.slice.call(newEl.childNodes);
+    var len = Math.max(oc.length, nc.length);
+    for (var i = 0; i < len; i++) {
+      var o = oc[i], n = nc[i];
+      if (!n) { oldEl.removeChild(o); continue; }
+      if (!o) { var add = n.cloneNode(true); oldEl.appendChild(add); if (add.nodeType === 1) add.classList.add('swap-in'); continue; }
+      if (o.nodeType !== n.nodeType || o.nodeName !== n.nodeName) {
+        var rep = n.cloneNode(true); oldEl.replaceChild(rep, o); if (rep.nodeType === 1) rep.classList.add('swap-in'); continue;
+      }
+      if (o.nodeType === 3) { if (o.textContent !== n.textContent) o.textContent = n.textContent; continue; }
+      if (o.nodeType === 1) morph(o, n);
+    }
+  }
+
+  function update() {
+    var k = keyOf();
+    Object.keys(D.sections).forEach(function (idx) {
+      var map = D.sections[idx]; var hi = map[k]; if (hi == null) return;
+      var sec = document.querySelector('[data-sec="' + idx + '"]'); if (!sec || sec.__k === k) return;
+      tpl.innerHTML = '<section>' + D.html[hi] + '</section>';
+      var fresh = tpl.content.firstElementChild;
+      Array.prototype.slice.call(sec.childNodes).forEach(function () {});
+      var shell = sec.cloneNode(false); while (fresh.firstChild) shell.appendChild(fresh.firstChild);
+      morph(sec, shell); sec.__k = k;
+      markLift(sec);
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-set]');
+    if (!b) return;
+    var patch = JSON.parse(b.getAttribute('data-set'));
+    var form = b.closest('form');
+    if (form && patch.sent === true) {
+      var name = form.querySelector('#d-name'), mail = form.querySelector('#d-email');
+      if (name) name.required = true; if (mail) mail.required = true;
+      if (!form.reportValidity()) return;
+    }
+    Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
+    update();
+  });
+  document.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  if (D.timer && !reduce) {
+    setInterval(function () {
+      if (state.auto === false || document.hidden) return;
+      state[D.timer.key] = (state[D.timer.key] + 1) % D.timer.n; update();
+    }, D.timer.ms);
+  }
+})();
+</script>
+</body>
+</html>

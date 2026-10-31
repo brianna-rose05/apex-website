@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apex — Security</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apex turns a homeowner's measurements into a priced countertop estimate on your website, with your pricing kept on the server.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#111827;text-decoration:none}a:hover{color:#3F5B7A}
+button{font-family:inherit}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px}
+.s2{grid-column:span 2}.s3{grid-column:span 3}.s4{grid-column:span 4}.s6{grid-column:span 6}
+@media (max-width:900px){.bento{grid-template-columns:repeat(2,minmax(0,1fr))}.s2,.s3,.s4,.s6{grid-column:span 2}}
+.flow{animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.glow{animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{opacity:.4}}
+.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.typing{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0;animation:typing 6s steps(11) infinite}
+@keyframes typing{0%,8%{width:0}35%,90%{width:11ch}100%{width:0}}
+.late{opacity:0;animation:late 6s ease infinite}
+@keyframes late{0%,38%{opacity:0;transform:translateY(6px)}44%,90%{opacity:1;transform:none}100%{opacity:0}}
+.travel{animation:travel 7s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes travel{0%{left:0;opacity:0}6%{opacity:1}94%{opacity:1}100%{left:100%;opacity:0}}
+@media (max-width:860px){.track{display:none}}
+.caret{animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important}.typing{width:11ch}.late{opacity:1}}
+</style>
+<style>/* ---- Apex site motion layer (Webflow-style) ---- */
+html{scroll-behavior:smooth;background:#FFFFFF;color-scheme:light}
+body{background:#FFFFFF;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+header{top:env(safe-area-inset-top,0px)!important;transition:box-shadow .35s ease,background-color .35s ease}
+header.scrolled{box-shadow:0 10px 30px -18px rgba(14,23,38,.25);background-color:rgba(255,255,255,.94)!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:#FFFFFF}
+
+/* page enter / leave */
+.page{animation:pageIn .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.leaving .page{opacity:0;transform:translateY(-6px);transition:opacity .28s ease,transform .28s ease}
+
+/* scroll reveal (applied only to content below the first screen) */
+.rv{opacity:0;transform:translateY(28px);filter:blur(4px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s ease;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+
+/* hero headline word rise */
+.w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wordUp .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes wordUp{to{opacity:1;transform:none}}
+
+/* interactions */
+a,button{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease,background-color .25s ease,color .2s ease,border-color .25s ease,opacity .2s ease}
+a[style*="border-radius: 999px"]:hover,button[style*="border-radius: 999px"]:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(14,23,38,.35)}
+a[style*="border-radius: 999px"]:active,button:active{transform:translateY(0) scale(.98)}
+nav a:not([style*="border-radius"]){position:relative}
+nav a:not([style*="border-radius"])::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:#0E1726;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+nav a:not([style*="border-radius"]):hover::after,nav a[aria-current="page"]::after{transform:scaleX(1)}
+footer a{opacity:.85}footer a:hover{opacity:1}
+.lift{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,border-color .3s ease}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -28px rgba(14,23,38,.28)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #3F5B7A;outline-offset:3px}
+
+/* swapped panels fade in */
+.swap-in{animation:swapIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes swapIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .page,.w,.swap-in{animation:none!important;opacity:1!important;transform:none!important}
+  .rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+  .lift:hover,a:hover,button:hover{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #111827; background: #FFFFFF; overflow-x: hidden">
+
+
+<header style="position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); border-bottom: 1px solid #ECEEF2">
+<nav aria-label="Main" style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<a href="index.html" style="display: flex; align-items: center; gap: 14px">
+<span style="font-weight: 700; font-size: 21px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<span style="width: 1px; height: 18px; background: #D9DDE3"></span>
+<span style="font-size: 13px; font-weight: 500; color: #3F4858">Instant Countertop Quotes</span>
+</a>
+<div style="display: flex; gap: 28px; font-size: 14px; font-weight: 500; flex-wrap: wrap">
+<a href="platform.html" style="color: #6B7280">Platform</a>
+<a href="security.html" aria-current="page" style="color: #0E1726; font-weight: 600">Security</a>
+<a href="pricing.html" style="color: #6B7280">Pricing</a>
+<a href="about.html" style="color: #6B7280">About</a>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="https://ctop-quote.vercel.app/" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; border: 1px solid #ECEEF2; background: rgba(255,255,255,0.85); color: #0E1726">Live demo</a>
+<a href="contact.html" style="font-size: 14px; font-weight: 600; padding: 11px 18px; border-radius: 999px; background: #0E1726; color: #FFFFFF">Book a demo</a>
+</div>
+</nav>
+</header>
+
+
+<section data-sec="0" style="position: relative; padding: 96px 24px 0; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -300px; left: 50%; width: 1200px; height: 800px; margin-left: -600px; background: radial-gradient(closest-side, rgba(218,228,243,0.95), rgba(218,228,243,0.4) 55%, transparent); pointer-events: none"></div>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px">
+<div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1px solid #ECEEF2; border-radius: 999px; background: #FFFFFF; font-size: 13px; font-weight: 500; color: #3F4858"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3F4858" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Security</div>
+<h1 style="margin: 0; font-size: clamp(46px, 7vw, 88px); line-height: 0.98; letter-spacing: -0.055em; font-weight: 700; color: #0E1726; max-width: 980px">Your pricing never leaves the server<span style="color: #3F5B7A">.</span></h1>
+<p style="margin: 0; font-size: clamp(17px, 1.7vw, 20px); line-height: 1.6; color: #6B7280; max-width: 580px">Customers get an exact estimate. Competitors get nothing to copy.</p>
+
+
+<div role="img" aria-label="Architecture: the customer's browser sends only measurements and selections over HTTPS. Inside the trust boundary, a server function applies your private pricing rules from the database and returns just the estimate, then emails the lead." style="position: relative; margin-top: 48px; width: 100%; max-width: 1120px; border-radius: 24px 24px 0 0; background: #0B1220; overflow: hidden; text-align: left">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px"></div>
+<div aria-hidden="true" style="position: absolute; top: -260px; right: -160px; width: 760px; height: 640px; background: radial-gradient(closest-side, rgba(218,228,243,0.20), transparent)"></div>
+<svg aria-hidden="true" viewBox="0 0 1100 420" width="100%" style="position: relative; display: block">
+
+<rect x="420" y="40" width="640" height="340" rx="22" fill="rgba(218,228,243,0.04)" stroke="rgba(218,228,243,0.45)" stroke-dasharray="6 6"></rect>
+<text x="444" y="68" font-family="JetBrains Mono, monospace" font-size="11" fill="#DAE4F3" letter-spacing="1">TRUST BOUNDARY · SERVER</text>
+
+<rect x="40" y="150" width="260" height="120" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)"></rect>
+<text x="62" y="180" font-family="JetBrains Mono, monospace" font-size="11" fill="#8B97A8">CUSTOMER BROWSER</text>
+<g font-family="JetBrains Mono, monospace" font-size="12" fill="#E3E8EF"><text x="62" y="210">shape: "L"</text><text x="62" y="232">sqft: 35.86</text><text x="62" y="254">stone: "qz-214"</text></g>
+
+<path class="flow" d="M300 196 H480" stroke="#DAE4F3" stroke-width="1.5" stroke-dasharray="4 6" fill="none"></path>
+<path class="flow" d="M480 232 H300" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="4 6" fill="none"></path>
+<rect x="344" y="176" width="92" height="22" rx="11" fill="#0B1220" stroke="rgba(218,228,243,0.5)"></rect><text x="390" y="191" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#DAE4F3">HTTPS</text>
+<text x="390" y="252" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#8B97A8">estimate only</text>
+
+<rect x="480" y="150" width="220" height="120" rx="16" fill="#DAE4F3"></rect>
+<g fill="none" stroke="#0E1726" stroke-width="1.8" stroke-linecap="round" transform="translate(502 168)"><rect x="2" y="9" width="18" height="13" rx="3"></rect><path d="M5.5 9V6a5.5 5.5 0 0 1 11 0v3"></path></g>
+<text x="534" y="186" font-family="JetBrains Mono, monospace" font-size="11" fill="#0E1726" font-weight="500">SERVER FUNCTION</text>
+<text x="502" y="224" font-family="Plus Jakarta Sans, sans-serif" font-size="16" font-weight="700" fill="#0E1726">Pricing engine</text>
+<text x="502" y="248" font-family="JetBrains Mono, monospace" font-size="10" fill="#3F4858">applies your rules</text>
+
+<path class="flow" d="M700 196 H790" stroke="#DAE4F3" stroke-width="1.5" stroke-dasharray="4 6" fill="none"></path>
+<rect x="790" y="96" width="230" height="200" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)"></rect>
+<text x="812" y="126" font-family="JetBrains Mono, monospace" font-size="11" fill="#8B97A8">POSTGRES · PRIVATE</text>
+<g font-family="JetBrains Mono, monospace" font-size="12" fill="#E3E8EF"><text x="812" y="160">costPerSqft</text><text x="812" y="184">markup</text><text x="812" y="208">edgeRates</text><text x="812" y="232">installTiers</text><text x="812" y="256">tearOutRates</text></g>
+<g fill="#DAE4F3"><circle class="glow" cx="996" cy="156" r="3"></circle><circle class="glow" cx="996" cy="180" r="3" style="animation-delay: .3s"></circle><circle class="glow" cx="996" cy="204" r="3" style="animation-delay: .6s"></circle><circle class="glow" cx="996" cy="228" r="3" style="animation-delay: .9s"></circle><circle class="glow" cx="996" cy="252" r="3" style="animation-delay: 1.2s"></circle></g>
+
+<path class="flow" d="M590 270 V330 H760" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="4 6" fill="none"></path>
+<rect x="760" y="314" width="200" height="34" rx="17" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)"></rect>
+<text x="860" y="335" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#E3E8EF">LEAD → YOUR INBOX</text>
+</svg>
+</div>
+</div>
+</section>
+
+
+<section data-sec="1" style="border-top: 1px solid #ECEEF2; border-bottom: 1px solid #ECEEF2">
+<div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">0</span>
+<span style="font-size: 14px; color: #6B7280">Pricing rules in the browser</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">100%</span>
+<span style="font-size: 14px; color: #6B7280">Of estimates calculated server-side</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">HTTPS</span>
+<span style="font-size: 14px; color: #6B7280">On every page and request</span>
+</div>
+
+<div style="padding: 36px 24px; border-left: 1px solid #ECEEF2; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 40px; font-weight: 700; letter-spacing: -0.05em; color: #0E1726">1</span>
+<span style="font-size: 14px; color: #6B7280">Recipient of your leads: you</span>
+</div>
+
+</div>
+</section>
+
+
+<section data-sec="2" style="padding: 120px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">WHO SEES WHAT</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">A clear line between public and private.</h2>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+<div style="border: 1px solid #ECEEF2; border-radius: 22px; background: #FFFFFF; overflow: hidden">
+<div style="padding: 22px 26px; border-bottom: 1px solid #ECEEF2; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Your customer sees</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; background: #F3F5F8; color: #3F4858">PUBLIC</span></div>
+
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid #F3F4F6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Their measurements</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">35.86 SQ FT</span></div>
+
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid #F3F4F6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Shape and layout drawing</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">L-SHAPE</span></div>
+
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid #F3F4F6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Stone, edge and cutouts</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">SELECTIONS</span></div>
+
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid #F3F4F6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Final estimate</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">RANGE</span></div>
+
+</div>
+<div style="position: relative; border-radius: 22px; background: #0B1220; color: #FFFFFF; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -160px; right: -120px; width: 420px; height: 380px; background: radial-gradient(closest-side, rgba(218,228,243,0.18), transparent)"></div>
+<div style="position: relative; padding: 22px 26px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center"><span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Stays on the server</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; background: #DAE4F3; color: #0E1726">PRIVATE</span></div>
+
+<div style="position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid rgba(255,255,255,0.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DAE4F3" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Cost per square foot</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B97A8">costPerSqft</span></div>
+
+<div style="position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid rgba(255,255,255,0.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DAE4F3" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Markup</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B97A8">markup</span></div>
+
+<div style="position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid rgba(255,255,255,0.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DAE4F3" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Edge rates</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B97A8">edgeRates</span></div>
+
+<div style="position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 26px; border-bottom: 1px solid rgba(255,255,255,0.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DAE4F3" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span style="flex: 1; font-size: 15px; font-weight: 500">Install and tear-out tiers</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B97A8">installTiers</span></div>
+
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="3" style="padding: 120px 24px; background: #F9FAFB; border-top: 1px solid #ECEEF2; border-bottom: 1px solid #ECEEF2">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">LIFE OF A QUOTE</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Four hops. Your rates stay put.</h2>
+</div>
+</div>
+<div style="position: relative; border-radius: 24px; background: #0B1220; overflow: hidden; padding: 56px clamp(20px, 4vw, 48px)">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 32px 32px"></div>
+<div aria-hidden="true" style="position: absolute; top: -220px; left: 50%; width: 900px; height: 520px; margin-left: -450px; background: radial-gradient(closest-side, rgba(218,228,243,0.14), transparent)"></div>
+<div style="position: relative">
+<div aria-hidden="true" class="track" style="position: absolute; top: 27px; left: 12.5%; right: 12.5%; height: 1px; background: rgba(218,228,243,0.22)">
+<div class="travel" style="position: absolute; top: -4px; width: 9px; height: 9px; margin-left: -4px; border-radius: 50%; background: #DAE4F3; box-shadow: 0 0 0 6px rgba(218,228,243,0.12), 0 0 24px rgba(218,228,243,0.6)"></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px 24px">
+
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; color: #FFFFFF">
+<span style="position: relative; width: 56px; height: 56px; border-radius: 50%; background: #0B1220; border: 1px solid rgba(218,228,243,0.4); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #DAE4F3">01</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8B97A8">BROWSER</span>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Customer submits</span>
+<span style="font-size: 14px; line-height: 1.55; color: #A9B4C2; max-width: 220px">Only measurements and selections leave the page.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; color: #FFFFFF">
+<span style="position: relative; width: 56px; height: 56px; border-radius: 50%; background: #0B1220; border: 1px solid rgba(218,228,243,0.4); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #DAE4F3">02</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8B97A8">HTTPS</span>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Encrypted in transit</span>
+<span style="font-size: 14px; line-height: 1.55; color: #A9B4C2; max-width: 220px">The request travels to a server function.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; color: #FFFFFF">
+<span style="position: relative; width: 56px; height: 56px; border-radius: 50%; background: #0B1220; border: 1px solid rgba(218,228,243,0.4); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #DAE4F3">03</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8B97A8">SERVER</span>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Rules applied</span>
+<span style="font-size: 14px; line-height: 1.55; color: #A9B4C2; max-width: 220px">Your private rates turn inputs into a price.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; color: #FFFFFF">
+<span style="position: relative; width: 56px; height: 56px; border-radius: 50%; background: #0B1220; border: 1px solid rgba(218,228,243,0.4); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #DAE4F3">04</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8B97A8">RESPONSE</span>
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.03em">Estimate returned</span>
+<span style="font-size: 14px; line-height: 1.55; color: #A9B4C2; max-width: 220px">Just the number comes back. The lead goes to you.</span>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section data-sec="4" style="padding: 120px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+<div style="max-width: 640px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">HOW WE BUILD</div>
+<h2 style="margin: 12px 0 0; font-size: clamp(34px, 4.4vw, 54px); letter-spacing: -0.045em; line-height: 1.04; font-weight: 700; color: #0E1726">Security by design, not by add-on.</h2>
+</div>
+<div class="bento" style="gap: 16px">
+
+
+<div class="s6" style="position: relative; border-radius: 24px; background: #0B1220; color: #FFFFFF; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 48px">
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px; -webkit-mask-image: linear-gradient(90deg, transparent 20%, #000 70%); mask-image: linear-gradient(90deg, transparent 20%, #000 70%)"></div>
+<div style="position: relative; flex: 1 1 320px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8B97A8">01 · NOTHING TO SCRAPE</span>
+<div style="font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.04em; line-height: 1.1">Open dev tools.<br>Find nothing.</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A9B4C2; max-width: 380px">Most quote calculators ship the price table in their JavaScript. Apex's bundle has no rates in it.</p>
+</div>
+<div aria-hidden="true" style="position: relative; flex: 1.2 1 380px; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; background: rgba(11,18,32,0.8); overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 12px">
+<div style="display: flex; gap: 16px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); color: #8B97A8; font-size: 11px"><span>Elements</span><span style="color: #FFFFFF">Sources</span><span>Network</span></div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.14); color: #FFFFFF"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8B97A8" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span class="typing">costPerSqft</span><span class="caret" style="width: 1px; height: 14px; background: #FFFFFF"></span></div>
+<div class="late" style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #DAE4F3; color: #0E1726"><span>Search all files</span><span style="font-weight: 500">0 results</span></div>
+<div style="display: flex; gap: 18px; color: #6B778A; font-size: 11px; flex-wrap: wrap"><span>app.bundle.js</span><span>wizard.chunk.js</span><span>catalog.chunk.js</span></div>
+</div>
+</div>
+</div>
+
+
+<div class="s3 hcard" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">02 · IN TRANSIT</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">HTTPS everywhere.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Every page and request is encrypted in transit.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start">
+<div style="display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; border: 1px solid #E3E6EA; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #0E1726; white-space: nowrap"><span style="width: 20px; height: 20px; border-radius: 6px; background: #DAE4F3; display: flex; align-items: center; justify-content: center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0E1726" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>yourshop.com/quote</div>
+<svg width="100%" height="14" viewBox="0 0 200 14" preserveAspectRatio="none"><path class="flow" d="M0 7 H200" stroke="#C3CAD3" stroke-width="1.4" stroke-dasharray="3 5"></path></svg>
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7280">TLS · encrypted request</div>
+</div>
+</div>
+
+
+<div class="s3 hcard" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">03 · STORAGE</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Private Postgres.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Rates live in a managed database, read only by server code.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 200px; border: 1px solid #E3E6EA; border-radius: 14px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 11px">
+<div style="display: flex; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid #ECEEF2; background: #FAFBFC; color: #6B7280"><span>pricing_rules</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-bottom: 1px solid #F3F4F6"><span>tier_1</span><span style="width: 44px; height: 7px; border-radius: 4px; background: #DAE4F3"></span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-bottom: 1px solid #F3F4F6"><span>bevel</span><span style="width: 34px; height: 7px; border-radius: 4px; background: #DAE4F3"></span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px"><span>sink_cut</span><span style="width: 40px; height: 7px; border-radius: 4px; background: #DAE4F3"></span></div>
+</div>
+</div>
+
+
+<div class="s3 hcard" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">04 · OWNERSHIP</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Leads go only to you.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Never shared, never resold to other shops.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 200px; display: flex; align-items: center; gap: 0">
+<span style="flex: none; width: 34px; height: 34px; border-radius: 50%; background: #DAE4F3; display: flex; align-items: center; justify-content: center"><span class="glow" style="width: 10px; height: 10px; border-radius: 50%; background: #3F5B7A"></span></span>
+<svg height="14" viewBox="0 0 100 14" preserveAspectRatio="none" style="flex: 1; min-width: 40px"><path class="flow" d="M0 7 H100" stroke="#C3CAD3" stroke-width="1.4" stroke-dasharray="3 5"></path></svg>
+<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 9px 12px; border-radius: 10px; background: #0E1726; color: #FFFFFF">YOUR INBOX</span>
+</div>
+</div>
+
+
+<div class="s3 hcard" style="border: 1px solid #ECEEF2; border-radius: 24px; background: #FFFFFF; padding: 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #6B7280">05 · INFRASTRUCTURE</span>
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.035em; color: #0E1726">Proven, managed stack.</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6B7280">Built on established cloud providers.</p>
+</div>
+<div aria-hidden="true" style="flex: 1 1 200px; display: flex; flex-direction: column; font-family: 'JetBrains Mono', monospace; font-size: 11px; border-top: 1px solid #ECEEF2">
+<div style="display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid #ECEEF2"><span style="color: #6B7280">HOSTING</span><span style="color: #0E1726">Vercel</span></div>
+<div style="display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid #ECEEF2"><span style="color: #6B7280">DATABASE</span><span style="color: #0E1726">Supabase</span></div>
+<div style="display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid #ECEEF2"><span style="color: #6B7280">EMAIL</span><span style="color: #0E1726">Resend</span></div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="5" style="padding: 0 24px 120px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap">
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em">FAQ</div>
+<h2 style="margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726">Security questions.</h2>
+</div>
+<div style="flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2">
+
+<div style="border-bottom: 1px solid #ECEEF2">
+<button type="button" data-set="{&quot;open&quot;:-1}" aria-expanded="true" style="width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em">Can competitors see my prices?<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280">−</span></button>
+
+<p style="margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px">They can see the estimate a customer gets, just like they could by calling you. They cannot see your rates, markup or formulas, because those never reach the browser.</p>
+
+</div>
+
+<div style="border-bottom: 1px solid #ECEEF2">
+<button type="button" data-set="{&quot;open&quot;:1}" aria-expanded="false" style="width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em">Where is my pricing stored?<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280">+</span></button>
+
+</div>
+
+<div style="border-bottom: 1px solid #ECEEF2">
+<button type="button" data-set="{&quot;open&quot;:2}" aria-expanded="false" style="width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em">Who receives customer leads?<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280">+</span></button>
+
+</div>
+
+<div style="border-bottom: 1px solid #ECEEF2">
+<button type="button" data-set="{&quot;open&quot;:3}" aria-expanded="false" style="width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em">Is customer data encrypted?<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280">+</span></button>
+
+</div>
+
+<div style="border-bottom: 1px solid #ECEEF2">
+<button type="button" data-set="{&quot;open&quot;:4}" aria-expanded="false" style="width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em">Do you have a written data policy?<span style="flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280">+</span></button>
+
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section data-sec="6" style="padding: 0 24px 110px">
+<div style="position: relative; max-width: 1200px; margin: 0 auto; border-radius: 28px; background: #0E1726; color: #FFFFFF; padding: clamp(40px, 6vw, 80px); display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: space-between; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; top: -200px; right: -160px; width: 600px; height: 500px; background: radial-gradient(closest-side, rgba(63,91,122,0.55), transparent); pointer-events: none"></div>
+<h2 style="position: relative; margin: 0; flex: 1 1 420px; font-size: clamp(34px, 5vw, 56px); letter-spacing: -0.05em; line-height: 1.02; font-weight: 700">Quote online without giving away your margins.</h2>
+<div style="position: relative; display: flex; gap: 10px; flex-wrap: wrap">
+<a href="contact.html" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; background: #FFFFFF; color: #0E1726">Book a demo</a>
+<a href="https://ctop-quote.vercel.app/" style="font-size: 15px; font-weight: 600; padding: 15px 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.22); color: #FFFFFF">Try the live demo</a>
+</div>
+</div>
+</section>
+
+
+<footer style="border-top: 1px solid #ECEEF2; padding: 48px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px">
+<span style="font-weight: 700; font-size: 20px; letter-spacing: -0.035em; color: #0E1726">Apex</span>
+<p style="margin: 0; font-size: 14px; color: #6B7280; line-height: 1.6">Instant, accurate quoting for countertop fabricators.</p>
+</div>
+<div style="display: flex; gap: 64px; flex-wrap: wrap; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">PRODUCT</span><a href="platform.html">Platform</a><a href="pricing.html">Pricing</a><a href="security.html">Security</a><a href="https://ctop-quote.vercel.app/">Live demo</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="color: #6B7280; font-size: 12px; font-weight: 600; letter-spacing: 0.04em">COMPANY</span><a href="about.html">About</a><a href="contact.html">Book a demo</a><a href="contact.html">Contact</a></div>
+</div>
+</div>
+<div style="max-width: 1200px; margin: 40px auto 0; font-size: 13px; color: #6B7280">© 2026 Apex. All rights reserved.</div>
+</footer>
+
+</div>
+<script>window.__DYN={"keys":["open"],"state":{"open":0},"sections":{"5":{"[-1]":0,"[0]":1,"[1]":2,"[2]":3,"[3]":4,"[4]":5}},"html":["\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:0}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:1}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:2}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:3}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:4}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:-1}\" aria-expanded=\"true\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">−\u003c/span>\u003c/button>\n\n\u003cp style=\"margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px\">They can see the estimate a customer gets, just like they could by calling you. They cannot see your rates, markup or formulas, because those never reach the browser.\u003c/p>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:1}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:2}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:3}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:4}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:0}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:-1}\" aria-expanded=\"true\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">−\u003c/span>\u003c/button>\n\n\u003cp style=\"margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px\">In a managed Postgres database (Supabase). Only server-side code reads it to calculate estimates.\u003c/p>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:2}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:3}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:4}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:0}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:1}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:-1}\" aria-expanded=\"true\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">−\u003c/span>\u003c/button>\n\n\u003cp style=\"margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px\">Only the email addresses you choose. Leads are not shared with other shops or sold to a marketplace.\u003c/p>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:3}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:4}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:0}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:1}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:2}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:-1}\" aria-expanded=\"true\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">−\u003c/span>\u003c/button>\n\n\u003cp style=\"margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px\">Yes, in transit. Every page and request is served over HTTPS.\u003c/p>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:4}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n","\n\u003cdiv style=\"max-width: 1200px; margin: 0 auto; display: flex; gap: 56px; flex-wrap: wrap\">\n\u003cdiv style=\"flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px\">\n\u003cdiv style=\"font-size: 13px; font-weight: 600; color: #3F5B7A; letter-spacing: 0.04em\">FAQ\u003c/div>\n\u003ch2 style=\"margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.06; font-weight: 700; color: #0E1726\">Security questions.\u003c/h2>\n\u003c/div>\n\u003cdiv style=\"flex: 2 1 560px; display: flex; flex-direction: column; border-top: 1px solid #ECEEF2\">\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:0}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Can competitors see my prices?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:1}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Where is my pricing stored?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:2}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Who receives customer leads?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:3}\" aria-expanded=\"false\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Is customer data encrypted?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">+\u003c/span>\u003c/button>\n\n\u003c/div>\n\n\u003cdiv style=\"border-bottom: 1px solid #ECEEF2\">\n\u003cbutton type=\"button\" data-set=\"{&quot;open&quot;:-1}\" aria-expanded=\"true\" style=\"width: 100%; min-height: 64px; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; border: none; background: transparent; cursor: pointer; font-size: 17px; font-weight: 600; color: #0E1726; text-align: left; letter-spacing: -0.02em\">Do you have a written data policy?\u003cspan style=\"flex: none; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #6B7280\">−\u003c/span>\u003c/button>\n\n\u003cp style=\"margin: 0; padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #6B7280; max-width: 620px\">[Link your privacy policy and data-handling terms here.]\u003c/p>\n\n\u003c/div>\n\n\u003c/div>\n\u003c/div>\n"],"timer":null};</script><script>(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.body.firstElementChild;
+  if (root) root.classList.add('page');
+
+  /* header shadow on scroll */
+  var header = document.querySelector('header');
+  function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* hero headline: words rise in */
+  var h1 = document.querySelector('h1');
+  if (h1 && !reduce) {
+    var i = 0, frag = document.createDocumentFragment();
+    Array.prototype.slice.call(h1.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); s.textContent = part; frag.appendChild(s);
+        });
+      } else if (n.nodeType === 1) {
+        var w = document.createElement('span'); w.className = 'w'; w.style.setProperty('--d', (0.08 + i++ * 0.055) + 's'); w.appendChild(n.cloneNode(true)); frag.appendChild(w);
+      }
+    });
+    h1.textContent = ''; h1.appendChild(frag);
+    h1.setAttribute('aria-label', h1.textContent);
+  }
+
+  /* hover lift on cards */
+  function markLift(scope) {
+    scope.querySelectorAll('.bento > *, [style*="display: grid"] > [style*="border-radius: 2"]').forEach(function (el) {
+      if (/border: 1px/.test(el.getAttribute('style') || '')) el.classList.add('lift');
+    });
+  }
+  markLift(document);
+
+  /* scroll reveal for content below the first screen */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cands = [];
+    document.querySelectorAll('main, section').forEach(function (sec) {
+      var grids = sec.querySelectorAll('.bento, [style*="display: grid"]');
+      grids.forEach(function (g) { Array.prototype.forEach.call(g.children, function (c, idx) { cands.push([c, Math.min(idx, 6) * 0.08]); }); });
+      sec.querySelectorAll('[style*="max-width: 1200px"]').forEach(function (box) {
+        Array.prototype.forEach.call(box.children, function (c, idx) {
+          if (c.querySelector('.bento, [style*="display: grid"]') || c.matches('.bento, [style*="display: grid"]')) return;
+          cands.push([c, Math.min(idx, 4) * 0.08]);
+        });
+      });
+    });
+    var fold = window.innerHeight * 0.92;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    var seen = new Set();
+    cands.forEach(function (c) {
+      var el = c[0];
+      if (seen.has(el)) return; seen.add(el);
+      if (el.closest('header, footer')) return;
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add('rv'); el.style.setProperty('--d', c[1] + 's'); io.observe(el);
+    });
+  }
+
+  /* page transitions */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target) return;
+    var href = a.getAttribute('href');
+    if (!/^[\w-]+\.html(#.*)?$/.test(href)) return;
+    e.preventDefault();
+    if (reduce) { location.href = href; return; }
+    document.body.classList.add('leaving');
+    setTimeout(function () { location.href = href; }, 280);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) document.body.classList.remove('leaving'); });
+
+  /* interactive state: tabs, toggles, FAQ, forms */
+  var D = window.__DYN;
+  if (!D) return;
+  var state = D.state;
+  var tpl = document.createElement('template');
+
+  function keyOf() { return JSON.stringify(D.keys.map(function (k) { return state[k]; })); }
+
+  function morph(oldEl, newEl) {
+    // attributes
+    Array.prototype.slice.call(oldEl.attributes).forEach(function (a) { if (!newEl.hasAttribute(a.name) && a.name !== 'class') oldEl.removeAttribute(a.name); });
+    Array.prototype.slice.call(newEl.attributes).forEach(function (a) {
+      if (a.name === 'class') {
+        var keep = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); });
+        oldEl.setAttribute('class', a.value); keep.forEach(function (c) { oldEl.classList.add(c); });
+      } else if (oldEl.getAttribute(a.name) !== a.value) oldEl.setAttribute(a.name, a.value);
+    });
+    if (!newEl.hasAttribute('class')) { var keep2 = ['lift', 'rv', 'in'].filter(function (c) { return oldEl.classList.contains(c); }); oldEl.removeAttribute('class'); keep2.forEach(function (c) { oldEl.classList.add(c); }); }
+    var oc = Array.prototype.slice.call(oldEl.childNodes), nc = Array.prototype.slice.call(newEl.childNodes);
+    var len = Math.max(oc.length, nc.length);
+    for (var i = 0; i < len; i++) {
+      var o = oc[i], n = nc[i];
+      if (!n) { oldEl.removeChild(o); continue; }
+      if (!o) { var add = n.cloneNode(true); oldEl.appendChild(add); if (add.nodeType === 1) add.classList.add('swap-in'); continue; }
+      if (o.nodeType !== n.nodeType || o.nodeName !== n.nodeName) {
+        var rep = n.cloneNode(true); oldEl.replaceChild(rep, o); if (rep.nodeType === 1) rep.classList.add('swap-in'); continue;
+      }
+      if (o.nodeType === 3) { if (o.textContent !== n.textContent) o.textContent = n.textContent; continue; }
+      if (o.nodeType === 1) morph(o, n);
+    }
+  }
+
+  function update() {
+    var k = keyOf();
+    Object.keys(D.sections).forEach(function (idx) {
+      var map = D.sections[idx]; var hi = map[k]; if (hi == null) return;
+      var sec = document.querySelector('[data-sec="' + idx + '"]'); if (!sec || sec.__k === k) return;
+      tpl.innerHTML = '<section>' + D.html[hi] + '</section>';
+      var fresh = tpl.content.firstElementChild;
+      Array.prototype.slice.call(sec.childNodes).forEach(function () {});
+      var shell = sec.cloneNode(false); while (fresh.firstChild) shell.appendChild(fresh.firstChild);
+      morph(sec, shell); sec.__k = k;
+      markLift(sec);
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-set]');
+    if (!b) return;
+    var patch = JSON.parse(b.getAttribute('data-set'));
+    var form = b.closest('form');
+    if (form && patch.sent === true) {
+      var name = form.querySelector('#d-name'), mail = form.querySelector('#d-email');
+      if (name) name.required = true; if (mail) mail.required = true;
+      if (!form.reportValidity()) return;
+    }
+    Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
+    update();
+  });
+  document.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  if (D.timer && !reduce) {
+    setInterval(function () {
+      if (state.auto === false || document.hidden) return;
+      state[D.timer.key] = (state[D.timer.key] + 1) % D.timer.n; update();
+    }, D.timer.ms);
+  }
+})();
+</script>
+</body>
+</html>
