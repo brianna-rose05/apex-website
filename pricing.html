@@ -56,6 +56,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .lift:hover,a:hover,button:hover{transform:none!important}
 }
 
+.arch-m{display:none}
+
 /* ---- mobile nav ---- */
 .menu-btn{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:1px solid #ECEEF2;background:#FFFFFF;cursor:pointer;padding:0}
 .menu-btn span{position:relative;display:block;width:18px;height:1.5px;background:#0E1726;transition:background .2s}
@@ -100,8 +102,8 @@ header.open .menu-btn span::after{transform:translateY(-6px) rotate(-45deg)}
   [style*="min-height: 420px"],[style*="min-height: 380px"]{min-height:0!important;padding:28px 20px!important}
 
   /* security architecture diagram scrolls instead of shrinking */
-  section [role="img"][style*="max-width: 1120px"]{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  section [role="img"][style*="max-width: 1120px"] > svg{min-width:760px}
+  section [role="img"][style*="max-width: 1120px"]:has(.arch-m) > svg{display:none!important}
+  .arch-m{display:flex!important}
 
   /* platform hero mockup: two space cards per row */
   [style*="repeat(auto-fit, minmax(170px, 1fr))"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
@@ -163,6 +165,23 @@ header.open .menu-btn span::after{transform:translateY(-6px) rotate(-45deg)}
   [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"]{grid-template-columns:repeat(4,minmax(0,1fr))!important;padding:0 12px}
   [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"] + div{padding:0 12px;flex-wrap:wrap;gap:6px}
   [style*="flex: 2 1 520px"] [style*="repeat(6, minmax(0, 1fr))"] > span:nth-child(n+13){display:none}
+}
+
+/* ---- phone polish: tabs, sketch tile, principles ---- */
+@media (max-width:640px){
+  [role="tablist"][aria-label="Quote steps"]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px!important;width:100%;box-sizing:border-box;border-radius:18px!important;padding:4px!important}
+  [role="tablist"][aria-label="Quote steps"] button{min-height:42px!important;padding:0 6px!important;border-radius:14px!important;font-size:13px!important}
+
+  .s6[style*="linear-gradient(120deg, #FFFFFF 40%, #F1F4F8)"]{flex-direction:column!important;flex-wrap:nowrap!important;min-height:0!important}
+  .s6[style*="linear-gradient(120deg, #FFFFFF 40%, #F1F4F8)"] > div:first-child{flex:none!important;padding:28px 24px 4px!important}
+  .s6[style*="linear-gradient(120deg, #FFFFFF 40%, #F1F4F8)"] > div:last-child{flex:none!important;padding:12px 24px 28px!important;gap:10px!important;justify-content:space-between!important}
+  .s6[style*="linear-gradient(120deg, #FFFFFF 40%, #F1F4F8)"] > div:last-child > svg[viewBox="0 0 200 120"]{width:42%!important;max-width:none!important}
+  .s6[style*="linear-gradient(120deg, #FFFFFF 40%, #F1F4F8)"] > div:last-child > svg[width="64"]{width:36px!important;flex:none}
+
+  [style*="flex: 1.4 1 440px"][style*="min-height: 380px"]{padding:28px 24px 32px!important}
+  [style*="flex: 1.4 1 440px"] .fadein[style*="max-width: 480px"]{gap:16px!important}
+  [style*="flex: 1.4 1 440px"] [style*="font-size: clamp(64px, 9vw, 104px)"]{font-size:56px!important}
+  [role="tablist"][aria-label="Principles"]{padding:16px!important}
 }
 </style>
 </head>
